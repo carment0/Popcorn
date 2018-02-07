@@ -1,3 +1,6 @@
+// Copyright (c) 2018 Popcorn
+// Author(s) Carmen To
+
 package model
 
 import "time"
