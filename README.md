@@ -100,17 +100,13 @@ system. We can construct a matrix factorization as follows:
 latent feature matrix for all movies in our system. The matrix product of user latent features and transpose of movie
 latent features is the model predicted rating matrix.
 
-<img src="https://latex.codecogs.com/png.latex?\dpi{150}&space;\bg_white&space;X\Theta^{T}&space;=&space;\hat{R}"
-title="X\Theta^{T} = \hat{R}" />
+![linear-model](./docs/linear-model.png)
 
 Let **R** represents the the actual rating we received from the MovieLens dataset. For every missing value in **R**, we
-will replace them with the average rating each movie received from the poll of users. Then we define the loss function as
-follows:
+will replace them with the average rating each movie received from the poll of users. Also we have included a regularization
+term to prevent model over-fitting. Then we define the loss function as follows:
 
-<img src="https://latex.codecogs.com/png.latex?\dpi{150}&space;\bg_white&space;L_{X,&space;\Theta}&space;=&space;
-\frac{1}{2}\Sigma_{i,j}&space;(X\Theta^{T}&space;-&space;R)^{2}&space;&plus;&space;\frac{\lambda}{2}\Sigma_{i,&space;k}
-X^{2}&space;&plus;&space;\frac{\lambda}{2}\Sigma_{j,&space;k}\Theta^{2}" title="L_{X, \Theta} = \frac{1}{2}\Sigma_{i,j}
-(X\Theta^{T} - R)^{2} + \frac{\lambda}{2}\Sigma_{i, k}X^{2} + \frac{\lambda}{2}\Sigma_{j, k}\Theta^{2}" />
+![loss](./docs/loss.png)
 
 Thus, figuring out the latent features for movies and users has become a constraint optimization problem.
 
@@ -118,27 +114,19 @@ Thus, figuring out the latent features for movies and users has become a constra
 Let's find the gradient of **L** with respect to the output of our low-rank matrix model. The one-half term will get
 cancel out by the square term when we take the derivatives.
 
-<img src="https://latex.codecogs.com/png.latex?\dpi{150}&space;\bg_white&space;\frac{\partial&space;L}{\partial&space;
-  \hat{R}}&space;=&space;\hat{R}&space;-&space;R" title="\frac{\partial L}{\partial \hat{R}} = \hat{R} - R" />
+![gradient-prediction](./docs/gradient-prediction.png)
 
 Now we proceed to seek the gradient of model output with respect to **X** and **big theta**.
 
-<img src="https://latex.codecogs.com/png.latex?\dpi{150}&space;\bg_white&space;\frac{\partial&space;\hat{R}}
-{\partial&space;X}&space;=&space;\Theta^{T}" title="\frac{\partial \hat{R}}{\partial X} = \Theta^{T}" />
+![gradient-user-latent](./docs/gradient-user-latent.png)
 
-<img src="https://latex.codecogs.com/png.latex?\dpi{150}&space;\bg_white&space;\frac{\partial&space;\hat{R}}
-{\partial&space;\Theta}&space;=&space;X" title="\frac{\partial \hat{R}}{\partial \Theta} = X" />
+![gradient-movie-latent](./docs/gradient-movie-latent.png)
 
 Using chain rule, we can then derive the following results:
 
-<img src="https://latex.codecogs.com/png.latex?\dpi{150}&space;\bg_white&space;\frac{\partial&space;L}{\partial&space;X}
-&space;=&space;\frac{\partial&space;L}{\partial&space;\hat{R}}\frac{\partial&space;\hat{R}}{\partial&space;X}"
-title="\frac{\partial L}{\partial X} = \frac{\partial L}{\partial \hat{R}}\frac{\partial \hat{R}}{\partial X}" />
+![gradient-u](./docs/gradient-u.png)
 
-<img src="https://latex.codecogs.com/png.latex?\dpi{150}&space;\bg_white&space;\frac{\partial&space;L}
-{\partial&space;\Theta}&space;=&space;\frac{\partial&space;L}{\partial&space;\hat{R}}\frac{\partial&space;\hat{R}}
-{\partial&space;\Theta}"
-title="\frac{\partial L}{\partial \Theta} = \frac{\partial L}{\partial \hat{R}}\frac{\partial \hat{R}}{\partial \Theta}" />
+![gradient-m](./docs/gradient-m.png)
 
 In Python
 ```Python
