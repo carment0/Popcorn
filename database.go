@@ -33,7 +33,7 @@ func SetupDatabase() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	db.AutoMigrate(&model.Movie{}, &model.User{})
+	db.AutoMigrate(&model.Movie{}, &model.User{}, &model.Rating{})
 
 	return db, nil
 }

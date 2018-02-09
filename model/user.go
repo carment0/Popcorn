@@ -9,9 +9,10 @@ type User struct {
 	UpdatedAt time.Time `json:"-"`
 
 	// User base attributes
-	Username       string `gorm:"type:varchar(100)"              json:"username"`
-	SessionToken   string `gorm:"type:varchar(100);unique_index" json:"-"`
-	PasswordDigest []byte `gorm:"type:bytea"                     json:"-"`
+	Username       string   `gorm:"type:varchar(100)"              json:"username"`
+	SessionToken   string   `gorm:"type:varchar(100);unique_index" json:"-"`
+	PasswordDigest []byte   `gorm:"type:bytea"                     json:"-"`
+	Ratings        []Rating `gorm:"ForeignKey:UserID"              json:"ratings"`
 }
 
 func (u *User) ResetSessionToken() {

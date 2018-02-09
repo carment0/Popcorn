@@ -1,3 +1,6 @@
+// Copyright (c) 2018 Popcorn
+// Author(s) Calvin Feng
+
 package main
 
 import (
@@ -12,6 +15,52 @@ import (
 	"strconv"
 	"strings"
 )
+
+func LoadFeatureCSVFile(filepath string) (map[uint][]float64, error) {
+	if csvFile, err := os.Open(filepath); err != nil {
+		return nil, err
+	} else {
+		reader := csv.NewReader(bufio.NewReader(csvFile))
+		featureByMovieID := make(map[uint][]float64)
+		for {
+			var rowRecord []string
+			var readerErr error
+
+			rowRecord, readerErr = reader.Read()
+			if readerErr != nil {
+				if readerErr == io.EOF {
+					break
+				} else {
+					fmt.Printf("Unexpected reader error: %v\n", readerErr)
+					continue
+				}
+			}
+
+			var movieID int64
+			var parseErr error
+
+			movieID, parseErr = strconv.ParseInt(rowRecord[0], 10, 64)
+			if parseErr != nil {
+				continue
+			}
+
+			featureVector := []float64{}
+			for i := 1; i < len(rowRecord); i += 1 {
+				if value, err := strconv.ParseFloat(rowRecord[i], 64); err == nil {
+					featureVector = append(featureVector, value)
+				}
+			}
+
+			if len(featureVector) != len(rowRecord)-1 {
+				continue
+			}
+
+			featureByMovieID[uint(movieID)] = featureVector
+		}
+
+		return featureByMovieID, nil
+	}
+}
 
 func LoadMetadataCSVFile(filepath string) (map[uint]map[string]string, error) {
 	if csvFile, err := os.Open(filepath); err != nil {

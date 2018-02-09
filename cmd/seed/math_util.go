@@ -1,3 +1,6 @@
+// Copyright (c) 2018 Popcorn
+// Author(s) Calvin Feng
+
 package main
 
 func Average(numbers []float64) float64 {

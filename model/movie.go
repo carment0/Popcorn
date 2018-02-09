@@ -28,4 +28,8 @@ type Movie struct {
 	NumRating     int             `gorm:"type:integer"  json:"num_rating"`
 	AverageRating float64         `gorm:"type:float8"   json:"average_rating"`
 	Feature       pq.Float64Array `gorm:"type:float8[]" json:"-"`
+
+	// The ratings here are submitted by the users of our web application, which is different from the ratings that came
+	// from the MovieLens data set.
+	Ratings []Rating
 }

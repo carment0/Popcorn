@@ -1,3 +1,6 @@
+// Copyright (c) 2018 Popcorn
+// Author(s) Calvin Feng
+
 package main
 
 import (
@@ -60,7 +63,7 @@ func main() {
 	featureDim := 10
 	R := processor.GetRatingMatrix()
 	approx := lowrank.NewApproximator(R, featureDim)
-	approx.Train(500, 1, 0, 5e-5)
+	approx.Train(500, 25, 0, 5e-5)
 
 	J, _ := approx.MovieLatent.Dims()
 	featureMapByMovieID := make(map[int][]float64)

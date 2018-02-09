@@ -41,6 +41,7 @@ func main() {
 
 	var movieModelsMap map[uint]*model.Movie
 	var movieRatingsMap map[uint][]float64
+	var featuresMap map[uint][]float64
 	var metadataMap map[uint]map[string]string
 	var loadError error
 
@@ -48,42 +49,59 @@ func main() {
 	if loadError != nil {
 		logrus.Fatal("Failed to load movie models from CSV data:", loadError)
 		return
+	} else {
+		logrus.Info("Movie models are loaded from csv files")
 	}
 
 	movieRatingsMap, loadError = LoadRatingsCSVFile("dataset/ratings.csv")
 	if loadError != nil {
 		logrus.Fatal("Failed to load movie ratings from CSV data:", loadError)
 		return
+	} else {
+		logrus.Info("Movie ratings map by movie ID are loaded from csv files")
 	}
 
 	metadataMap, loadError = LoadMetadataCSVFile("dataset/links.csv")
 	if loadError != nil {
 		logrus.Fatal("Failed to load movie metadata from CSV data:", loadError)
 		return
+	} else {
+		logrus.Info("Movie metadata are loaded from csv files")
 	}
 
-	logrus.Info("Movie and rating data are loaded from csv files")
+	featuresMap, loadError = LoadFeatureCSVFile("dataset/features.csv")
+	if loadError != nil {
+		logrus.Error("Failed to load movie features from CSV data:", loadError)
+	} else {
+		logrus.Info("Movie features are loaded from csv files")
+	}
 
 	if db.HasTable(&model.Movie{}) {
 		db.DropTable(&model.Movie{})
-		logrus.Info("Existing table is dropped: movies")
+		logrus.Info("Existing \"movies\" table is dropped")
 	}
 
 	db.CreateTable(&model.Movie{})
-	logrus.Info("New table is created: movies")
+	logrus.Info("New \"movies\" table is created")
 
 	count := 0
-	for movieId := range movieModelsMap {
-		movie := movieModelsMap[movieId]
+	for movieID := range movieModelsMap {
+		movie := movieModelsMap[movieID]
 
-		if ratingList, ok := movieRatingsMap[movieId]; ok {
+		if ratingList, ok := movieRatingsMap[movieID]; ok {
 			movie.AverageRating = Average(ratingList)
 			movie.NumRating = len(ratingList)
 		}
 
-		if dict, ok := metadataMap[movieId]; ok {
+		if dict, ok := metadataMap[movieID]; ok {
 			movie.IMDBID = dict["imdb"]
 			movie.TMDBID = dict["tmdb"]
+		}
+
+		if featuresMap != nil {
+			if value, ok := featuresMap[movieID]; ok {
+				movie.Feature = value
+			}
 		}
 
 		if db.Create(movie).Error == nil {
