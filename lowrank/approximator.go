@@ -5,8 +5,8 @@
 package lowrank
 
 import (
-	"fmt"
 	"gonum.org/v1/gonum/mat"
+	"github.com/sirupsen/logrus"
 )
 
 type Approximator struct {
@@ -46,7 +46,7 @@ func (a *Approximator) Loss(reg float64) (float64, float64, error) {
 	I, J := prediction.Dims()
 	diff := mat.NewDense(I, J, nil)
 	diff.Sub(prediction, a.Rating)
-	avgDiscrepancy := AbsMax(diff)
+	avgDiscrepancy := AbsAverage(diff)
 	diff.MulElem(diff, diff)
 
 	loss := 0.5 * mat.Sum(diff)
@@ -95,7 +95,7 @@ func (a *Approximator) Train(steps int, epochSize int, reg float64, learnRate fl
 	for step := 0; step < steps; step += 1 {
 		if step%epochSize == 0 {
 			loss, avgDiscrepancy, _ := a.Loss(reg)
-			fmt.Printf("%d: net loss %.2f, avg loss %.8f, and average discrepancy from true value %.8f \n",
+			logrus.Infof("%d: net loss %.2f, avg loss %.8f, and average discrepancy from true value %.8f \n",
 				step, loss, loss/float64(I*J), avgDiscrepancy,
 			)
 		}
@@ -106,6 +106,24 @@ func (a *Approximator) Train(steps int, epochSize int, reg float64, learnRate fl
 
 			GradM.Scale(learnRate, GradM)
 			a.MovieLatent.Sub(a.MovieLatent, GradM)
+		}
+	}
+}
+
+func (a *Approximator) ApproximateUserLatent(steps int, epochSize int, reg float64, learnRate float64) {
+	I, _ := a.UserLatent.Dims()
+	J, _ := a.MovieLatent.Dims()
+	for step := 0; step < steps; step += 1 {
+		if step%epochSize == 0 {
+			loss, avgDiscrepancy, _ := a.Loss(reg)
+			logrus.Infof("%d: net loss %.2f, avg loss %.8f, and average discrepancy from true value %.8f \n",
+				step, loss, loss/float64(I*J), avgDiscrepancy,
+			)
+		}
+
+		if GradU, _, err := a.Gradients(reg); err == nil {
+			GradU.Scale(learnRate, GradU)
+			a.UserLatent.Sub(a.UserLatent, GradU)
 		}
 	}
 }

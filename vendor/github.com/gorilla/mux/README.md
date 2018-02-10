@@ -47,11 +47,11 @@ Let's start registering a couple of URL paths and handlers:
 
 ```go
 func main() {
-    a := mux.NewRouter()
-    a.HandleFunc("/", HomeHandler)
-    a.HandleFunc("/products", ProductsHandler)
-    a.HandleFunc("/articles", ArticlesHandler)
-    http.Handle("/", a)
+    r := mux.NewRouter()
+    r.HandleFunc("/", HomeHandler)
+    r.HandleFunc("/products", ProductsHandler)
+    r.HandleFunc("/articles", ArticlesHandler)
+    http.Handle("/", r)
 }
 ```
 
@@ -60,17 +60,17 @@ Here we register three routes mapping URL paths to handlers. This is equivalent 
 Paths can have variables. They are defined using the format `{name}` or `{name:pattern}`. If a regular expression pattern is not defined, the matched variable will be anything until the next slash. For example:
 
 ```go
-a := mux.NewRouter()
-a.HandleFunc("/products/{key}", ProductHandler)
-a.HandleFunc("/articles/{category}/", ArticlesCategoryHandler)
-a.HandleFunc("/articles/{category}/{id:[0-9]+}", ArticleHandler)
+r := mux.NewRouter()
+r.HandleFunc("/products/{key}", ProductHandler)
+r.HandleFunc("/articles/{category}/", ArticlesCategoryHandler)
+r.HandleFunc("/articles/{category}/{id:[0-9]+}", ArticleHandler)
 ```
 
 The names are used to create a map of route variables which can be retrieved calling `mux.Vars()`:
 
 ```go
-func ArticlesCategoryHandler(w http.ResponseWriter, a *http.Request) {
-    vars := mux.Vars(a)
+func ArticlesCategoryHandler(w http.ResponseWriter, r *http.Request) {
+    vars := mux.Vars(r)
     w.WriteHeader(http.StatusOK)
     fmt.Fprintf(w, "Category: %v\n", vars["category"])
 }
@@ -83,55 +83,55 @@ And this is all you need to know about the basic usage. More advanced options ar
 Routes can also be restricted to a domain or subdomain. Just define a host pattern to be matched. They can also have variables:
 
 ```go
-a := mux.NewRouter()
+r := mux.NewRouter()
 // Only matches if domain is "www.example.com".
-a.Host("www.example.com")
+r.Host("www.example.com")
 // Matches a dynamic subdomain.
-a.Host("{subdomain:[a-z]+}.domain.com")
+r.Host("{subdomain:[a-z]+}.domain.com")
 ```
 
 There are several other matchers that can be added. To match path prefixes:
 
 ```go
-a.PathPrefix("/products/")
+r.PathPrefix("/products/")
 ```
 
 ...or HTTP methods:
 
 ```go
-a.Methods("GET", "POST")
+r.Methods("GET", "POST")
 ```
 
 ...or URL schemes:
 
 ```go
-a.Schemes("https")
+r.Schemes("https")
 ```
 
 ...or header values:
 
 ```go
-a.Headers("X-Requested-With", "XMLHttpRequest")
+r.Headers("X-Requested-With", "XMLHttpRequest")
 ```
 
 ...or query values:
 
 ```go
-a.Queries("key", "value")
+r.Queries("key", "value")
 ```
 
 ...or to use a custom matcher function:
 
 ```go
-a.MatcherFunc(func(a *http.Request, rm *RouteMatch) bool {
-    return a.ProtoMajor == 0
+r.MatcherFunc(func(r *http.Request, rm *RouteMatch) bool {
+    return r.ProtoMajor == 0
 })
 ```
 
 ...and finally, it is possible to combine several matchers in a single route:
 
 ```go
-a.HandleFunc("/products", ProductsHandler).
+r.HandleFunc("/products", ProductsHandler).
   Host("www.example.com").
   Methods("GET").
   Schemes("http")
@@ -140,9 +140,9 @@ a.HandleFunc("/products", ProductsHandler).
 Routes are tested in the order they were added to the router. If two routes match, the first one wins:
 
 ```go
-a := mux.NewRouter()
-a.HandleFunc("/specific", specificHandler)
-a.PathPrefix("/").Handler(catchAllHandler)
+r := mux.NewRouter()
+r.HandleFunc("/specific", specificHandler)
+r.PathPrefix("/").Handler(catchAllHandler)
 ```
 
 Setting the same matching conditions again and again can be boring, so we have a way to group several routes that share the same requirements. We call it "subrouting".
@@ -150,8 +150,8 @@ Setting the same matching conditions again and again can be boring, so we have a
 For example, let's say we have several URLs that should only match when the host is `www.example.com`. Create a route for that host and get a "subrouter" from it:
 
 ```go
-a := mux.NewRouter()
-s := a.Host("www.example.com").Subrouter()
+r := mux.NewRouter()
+s := r.Host("www.example.com").Subrouter()
 ```
 
 Then register routes in the subrouter:
@@ -169,8 +169,8 @@ Subrouters can be used to create domain or path "namespaces": you define subrout
 There's one more thing about subroutes. When a subrouter has a path prefix, the inner routes use it as base for their paths:
 
 ```go
-a := mux.NewRouter()
-s := a.PathPrefix("/products").Subrouter()
+r := mux.NewRouter()
+s := r.PathPrefix("/products").Subrouter()
 // "/products/"
 s.HandleFunc("/", ProductsHandler)
 // "/products/{key}/"
@@ -193,18 +193,18 @@ import (
     "github.com/gorilla/mux"
 )
 
-func handler(w http.ResponseWriter, a *http.Request) {
+func handler(w http.ResponseWriter, r *http.Request) {
     return
 }
 
 func main() {
-    a := mux.NewRouter()
-    a.HandleFunc("/", handler)
-    a.HandleFunc("/products", handler).Methods("POST")
-    a.HandleFunc("/articles", handler).Methods("GET")
-    a.HandleFunc("/articles/{id}", handler).Methods("GET", "PUT")
-    a.HandleFunc("/authors", handler).Queries("surname", "{surname}")
-    a.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+    r := mux.NewRouter()
+    r.HandleFunc("/", handler)
+    r.HandleFunc("/products", handler).Methods("POST")
+    r.HandleFunc("/articles", handler).Methods("GET")
+    r.HandleFunc("/articles/{id}", handler).Methods("GET", "PUT")
+    r.HandleFunc("/authors", handler).Queries("surname", "{surname}")
+    r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
         t, err := route.GetPathTemplate()
         if err != nil {
             return err
@@ -233,7 +233,7 @@ func main() {
         fmt.Println(strings.Join(m, ","), strings.Join(qt, ","), strings.Join(qr, ","), t, p)
         return nil
     })
-    http.Handle("/", a)
+    http.Handle("/", r)
 }
 ```
 
@@ -249,13 +249,13 @@ func main() {
 
     flag.StringVar(&dir, "dir", ".", "the directory to serve files from. Defaults to the current dir")
     flag.Parse()
-    a := mux.NewRouter()
+    r := mux.NewRouter()
 
     // This will serve files under http://localhost:8000/static/<filename>
-    a.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
+    r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
 
     srv := &http.Server{
-        Handler:      a,
+        Handler:      r,
         Addr:         "127.0.0.1:8000",
         // Good practice: enforce timeouts for servers you create!
         WriteTimeout: 15 * time.Second,
@@ -273,15 +273,15 @@ Now let's see how to build registered URLs.
 Routes can be named. All routes that define a name can have their URLs built, or "reversed". We define a name calling `Name()` on a route. For example:
 
 ```go
-a := mux.NewRouter()
-a.HandleFunc("/articles/{category}/{id:[0-9]+}", ArticleHandler).
+r := mux.NewRouter()
+r.HandleFunc("/articles/{category}/{id:[0-9]+}", ArticleHandler).
   Name("article")
 ```
 
 To build a URL, get the route and call the `URL()` method, passing a sequence of key/value pairs for the route variables. For the previous route, we would do:
 
 ```go
-url, err := a.Get("article").URL("category", "technology", "id", "42")
+url, err := r.Get("article").URL("category", "technology", "id", "42")
 ```
 
 ...and the result will be a `url.URL` with the following path:
@@ -293,15 +293,15 @@ url, err := a.Get("article").URL("category", "technology", "id", "42")
 This also works for host and query value variables:
 
 ```go
-a := mux.NewRouter()
-a.Host("{subdomain}.domain.com").
+r := mux.NewRouter()
+r.Host("{subdomain}.domain.com").
   Path("/articles/{category}/{id:[0-9]+}").
   Queries("filter", "{filter}").
   HandlerFunc(ArticleHandler).
   Name("article")
 
 // url.String() will be "http://news.domain.com/articles/technology/42?filter=gorilla"
-url, err := a.Get("article").URL("subdomain", "news",
+url, err := r.Get("article").URL("subdomain", "news",
                                  "category", "technology",
                                  "id", "42",
                                  "filter", "gorilla")
@@ -312,7 +312,7 @@ All variables defined in the route are required, and their values must conform t
 Regex support also exists for matching Headers within a route. For example, we could do:
 
 ```go
-a.HeadersRegexp("Content-Type", "application/(text|json)")
+r.HeadersRegexp("Content-Type", "application/(text|json)")
 ```
 
 ...and the route will match both requests with a Content-Type of `application/json` as well as `application/text`
@@ -321,23 +321,23 @@ There's also a way to build only the URL host or path for a route: use the metho
 
 ```go
 // "http://news.domain.com/"
-host, err := a.Get("article").URLHost("subdomain", "news")
+host, err := r.Get("article").URLHost("subdomain", "news")
 
 // "/articles/technology/42"
-path, err := a.Get("article").URLPath("category", "technology", "id", "42")
+path, err := r.Get("article").URLPath("category", "technology", "id", "42")
 ```
 
 And if you use subrouters, host and path defined separately can be built as well:
 
 ```go
-a := mux.NewRouter()
-s := a.Host("{subdomain}.domain.com").Subrouter()
+r := mux.NewRouter()
+s := r.Host("{subdomain}.domain.com").Subrouter()
 s.Path("/articles/{category}/{id:[0-9]+}").
   HandlerFunc(ArticleHandler).
   Name("article")
 
 // "http://news.domain.com/articles/technology/42"
-url, err := a.Get("article").URL("subdomain", "news",
+url, err := r.Get("article").URL("subdomain", "news",
                                  "category", "technology",
                                  "id", "42")
 ```
@@ -348,13 +348,13 @@ The `Walk` function on `mux.Router` can be used to visit all of the routes that 
 the following prints all of the registered routes:
 
 ```go
-a := mux.NewRouter()
-a.HandleFunc("/", handler)
-a.HandleFunc("/products", handler).Methods("POST")
-a.HandleFunc("/articles", handler).Methods("GET")
-a.HandleFunc("/articles/{id}", handler).Methods("GET", "PUT")
-a.HandleFunc("/authors", handler).Queries("surname", "{surname}")
-a.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+r := mux.NewRouter()
+r.HandleFunc("/", handler)
+r.HandleFunc("/products", handler).Methods("POST")
+r.HandleFunc("/articles", handler).Methods("GET")
+r.HandleFunc("/articles/{id}", handler).Methods("GET", "PUT")
+r.HandleFunc("/authors", handler).Queries("surname", "{surname}")
+r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
     t, err := route.GetPathTemplate()
     if err != nil {
         return err
@@ -408,7 +408,7 @@ func main() {
     flag.DurationVar(&wait, "graceful-timeout", time.Second * 15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
     flag.Parse()
 
-    a := mux.NewRouter()
+    r := mux.NewRouter()
     // Add your routes as needed
     
     srv := &http.Server{
@@ -417,7 +417,7 @@ func main() {
         WriteTimeout: time.Second * 15,
         ReadTimeout:  time.Second * 15,
         IdleTimeout:  time.Second * 60,
-        Handler: a, // Pass our instance of gorilla/mux in.
+        Handler: r, // Pass our instance of gorilla/mux in.
     }
 
     // Run our server in a goroutine so that it doesn't block.
@@ -465,11 +465,11 @@ A very basic middleware which logs the URI of the request being handled could be
 
 ```go
 func simpleMw(next http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, a *http.Request) {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         // Do stuff here
-        log.Println(a.RequestURI)
+        log.Println(r.RequestURI)
         // Call the next handler, which can be another middleware in the chain, or the final handler.
-        next.ServeHTTP(w, a)
+        next.ServeHTTP(w, r)
     })
 }
 ```
@@ -477,9 +477,9 @@ func simpleMw(next http.Handler) http.Handler {
 Middlewares can be added to a router using `Router.AddMiddlewareFunc()`:
 
 ```go
-a := mux.NewRouter()
-a.HandleFunc("/", handler)
-a.AddMiddleware(simpleMw)
+r := mux.NewRouter()
+r.HandleFunc("/", handler)
+r.AddMiddleware(simpleMw)
 ```
 
 A more complex authentication middleware, which maps session token to users, could be written as:
@@ -500,14 +500,14 @@ func (amw *authenticationMiddleware) Populate() {
 
 // Middleware function, which will be called for each request
 func (amw *authenticationMiddleware) Middleware(next http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, a *http.Request) {
-        token := a.Header.Get("X-Session-Token")
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        token := r.Header.Get("X-Session-Token")
         
         if user, found := amw.tokenUsers[token]; found {
         	// We found the token in our map
         	log.Printf("Authenticated user %s\n", user)
         	// Pass down the request to the next middleware (or final handler)
-        	next.ServeHTTP(w, a)
+        	next.ServeHTTP(w, r)
         } else {
         	// Write an error and stop the handler chain
         	http.Error(w, "Forbidden", 403)
@@ -517,13 +517,13 @@ func (amw *authenticationMiddleware) Middleware(next http.Handler) http.Handler 
 ```
 
 ```go
-a := mux.NewRouter()
-a.HandleFunc("/", handler)
+r := mux.NewRouter()
+r.HandleFunc("/", handler)
 
 amw := authenticationMiddleware{}
 amw.Populate()
 
-a.AddMiddlewareFunc(amw.Middleware)
+r.AddMiddlewareFunc(amw.Middleware)
 ```
 
 Note: The handler chain will be stopped if your middleware doesn't call `next.ServeHTTP()` with the corresponding parameters. This can be used to abort a request if the middleware writer wants to. Middlewares *should* write to `ResponseWriter` if they *are* going to terminate the request, and they *should not* write to `ResponseWriter` if they *are not* going to terminate it.
@@ -541,17 +541,17 @@ import (
     "github.com/gorilla/mux"
 )
 
-func YourHandler(w http.ResponseWriter, a *http.Request) {
+func YourHandler(w http.ResponseWriter, r *http.Request) {
     w.Write([]byte("Gorilla!\n"))
 }
 
 func main() {
-    a := mux.NewRouter()
+    r := mux.NewRouter()
     // Routes consist of a path and a handler function.
-    a.HandleFunc("/", YourHandler)
+    r.HandleFunc("/", YourHandler)
 
     // Bind to a port and pass our router in
-    log.Fatal(http.ListenAndServe(":8000", a))
+    log.Fatal(http.ListenAndServe(":8000", r))
 }
 ```
 

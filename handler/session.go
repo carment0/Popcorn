@@ -40,13 +40,13 @@ func NewSessionCreateHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 
-		var loginReq LoginRequest
-		if err := decoder.Decode(&loginReq); err != nil {
+		var reqData LoginRequest
+		if err := decoder.Decode(&reqData); err != nil {
 			RenderError(w, "Fail to parse request json into a struct", http.StatusInternalServerError)
 			return
 		}
 
-		user, err := FindUserByCredential(db, loginReq.Username, loginReq.Password)
+		user, err := FindUserByCredential(db, reqData.Username, reqData.Password)
 		if err != nil {
 			RenderError(w, "Incorrect username/password combination", http.StatusUnauthorized)
 			return

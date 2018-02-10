@@ -30,7 +30,7 @@
 *>          = 'B' or 'b',   DLAMCH := base
 *>          = 'P' or 'p',   DLAMCH := eps*base
 *>          = 'N' or 'n',   DLAMCH := t
-*>          = 'R' or 'a',   DLAMCH := rnd
+*>          = 'R' or 'r',   DLAMCH := rnd
 *>          = 'M' or 'm',   DLAMCH := emin
 *>          = 'U' or 'u',   DLAMCH := rmin
 *>          = 'L' or 'l',   DLAMCH := emax

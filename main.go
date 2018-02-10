@@ -5,9 +5,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
+	"popcorn/model"
 	"time"
 )
 
@@ -24,13 +26,23 @@ func main() {
 	})
 
 	db, err := SetupDatabase()
-
 	if err != nil {
-		logrus.Error(err)
+		logrus.Error("Failed to set up database", err)
 		return
 	}
 
 	defer db.Close()
+
+	// Client connection map is meant for keeping track of all web socket connection to every client. It is also being
+	// used in the recommend engine for notifying clients that their preference vector is ready.
+	clientConnMap := make(map[uint]*websocket.Conn)
+
+	// This is the channel for communication between http handlers and a background running engine asynchronously.
+	recommendRequests := make(chan *model.User)
+
+	// Set up recommend engine for serving the incoming requests.
+	engine := NewRecommendEngine(db, clientConnMap)
+	go engine.ListenToInbound(recommendRequests)
 
 	server := &http.Server{
 		Handler:      LoadRoutes(db),

@@ -21,23 +21,23 @@ func NewUserCreateHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 
-		var regReq RegisterRequest
-		if err := decoder.Decode(&regReq); err != nil {
+		var reqData RegisterRequest
+		if err := decoder.Decode(&reqData); err != nil {
 			RenderError(w, "Failed to parse request JSON into struct", http.StatusInternalServerError)
 			return
 		}
-		if len(regReq.Password) == 0 || len(regReq.Username) == 0 {
+		if len(reqData.Password) == 0 || len(reqData.Username) == 0 {
 			RenderError(w, "Please provide username and password for registration", http.StatusBadRequest)
 			return
 		}
 
-		hashBytes, hashErr := bcrypt.GenerateFromPassword([]byte(regReq.Password), 10)
+		hashBytes, hashErr := bcrypt.GenerateFromPassword([]byte(reqData.Password), 10)
 		if hashErr != nil {
 			RenderError(w, hashErr.Error(), http.StatusInternalServerError)
 			return
 		}
 		newUser := &model.User{
-			Username:       regReq.Username,
+			Username:       reqData.Username,
 			PasswordDigest: hashBytes,
 		}
 

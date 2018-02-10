@@ -286,10 +286,10 @@
             print *, "ei", e(i)
             BB = E( I )
             R = P + BB
-            print *, "bb,p,a"
-            print *, bb,p,a
+            print *, "bb,p,r"
+            print *, bb,p,r
             IF( I.NE.M-1 ) THEN
-              print *, s,a
+              print *, s,r
               E( I+1 ) = S*R
             end if
             OLDC = C

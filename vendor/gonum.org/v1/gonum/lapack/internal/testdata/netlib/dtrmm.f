@@ -46,7 +46,7 @@
 *>
 *>              SIDE = 'L' or 'l'   B := alpha*op( A )*B.
 *>
-*>              SIDE = 'R' or 'a'   B := alpha*B*op( A ).
+*>              SIDE = 'R' or 'r'   B := alpha*B*op( A ).
 *> \endverbatim
 *>
 *> \param[in] UPLO
@@ -110,7 +110,7 @@
 *> \param[in] A
 *> \verbatim
 *>           A is DOUBLE PRECISION array of DIMENSION ( LDA, k ), where k is m
-*>           when  SIDE = 'L' or 'l'  and is  n  when  SIDE = 'R' or 'a'.
+*>           when  SIDE = 'L' or 'l'  and is  n  when  SIDE = 'R' or 'r'.
 *>           Before entry  with  UPLO = 'U' or 'u',  the  leading  k by k
 *>           upper triangular part of the array  A must contain the upper
 *>           triangular matrix  and the strictly lower triangular part of
@@ -128,7 +128,7 @@
 *>          LDA is INTEGER
 *>           On entry, LDA specifies the first dimension of A as declared
 *>           in the calling (sub) program.  When  SIDE = 'L' or 'l'  then
-*>           LDA  must be at least  max( 1, m ),  when  SIDE = 'R' or 'a'
+*>           LDA  must be at least  max( 1, m ),  when  SIDE = 'R' or 'r'
 *>           then LDA must be at least max( 1, n ).
 *> \endverbatim
 *>
