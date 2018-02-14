@@ -13,10 +13,15 @@ import CircularProgress from 'material-ui/CircularProgress';
 import MovieTrailerPlayer from './movie_trailer_player';
 import YearRangeSelector from './year_range_selector';
 import PopularitySelector from './popularity_selector';
+import RecommendedMovieItem from './recommended_movie_item';
 
 // Store imports
 import { setMovieYearRange } from '../../store/movies/year_range.action';
 import { setMoviePopularityPercentile } from '../../store/movies/percentile.action';
+import { movieDetailFetch } from '../../store/movies/detail.action';
+import { movieTrailerFetch } from '../../store/movies/trailer.action';
+import { movieRatingPost, movieRatingRecord } from '../../store/movies/rating.action';
+import { movieSkip } from '../../store/movies/movie.action';
 
 
 // Style imports
@@ -25,22 +30,29 @@ import './recommendation_index.scss';
 
 class RecommendationIndex extends React.Component {
   state = {
-    activeTrailer: []
+    trailerSourceList: []
   };
 
   static propTypes = {
+    session: PropTypes.object.isRequired,
     movies: PropTypes.object.isRequired,
     movieTrailers: PropTypes.object.isRequired,
     movieYearRange: PropTypes.object.isRequired,
+    movieDetails: PropTypes.object.isRequired,
     moviePopularityPercentile: PropTypes.number.isRequired,
     dispatchSetMovieYearRange: PropTypes.func.isRequired,
-    dispatchSetMoviePopularityPercentile: PropTypes.func.isRequired
+    dispatchSetMoviePopularityPercentile: PropTypes.func.isRequired,
+    dispatchMovieSkip: PropTypes.func.isRequired,
+    dispatchMovieRatingPost: PropTypes.func.isRequired,
+    dispatchMovieRatingRecord: PropTypes.func.isRequired,
+    dispatchMovieDetailFetch: PropTypes.func.isRequired,
+    dispatchMovieTrailerFetch: PropTypes.func.isRequired
   }
 
   playTrailer = (imdbId) => {
     if (this.props.movieTrailers[imdbId] && this.props.movieTrailers[imdbId].length > 0) {
       this.setState({
-        activeTrailer: this.props.movieTrailers[imdbId]
+        trailerSourceList: this.props.movieTrailers[imdbId]
       });
     }
   };
@@ -62,10 +74,10 @@ class RecommendationIndex extends React.Component {
   }
 
   get trailerPlayer() {
-    if (this.state.activeTrailer.length > 0) {
+    if (this.state.trailerSourceList.length > 0) {
       return (
         <section className="trailer-player">
-          <MovieTrailerPlayer videoSourceList={this.state.activeTrailer} />
+          <MovieTrailerPlayer videoSourceList={this.state.trailerSourceList} />
         </section>
       );
     }
@@ -85,7 +97,34 @@ class RecommendationIndex extends React.Component {
   }
 
   get recommendedMovies() {
-    return this.props.movies.recommended;
+    const validRecommendations = [];
+
+    this.props.movies.recommended.forEach((movieId) => {
+      if (this.props.movies.skipped.has(movieId) || this.props.movies.rated.has(movieId)) {
+        return;
+      }
+
+      if (this.props.movies.all[movieId]) {
+        validRecommendations.push(this.props.movies.all[movieId]);
+      }
+    });
+
+    return validRecommendations.sort().map((movie) => {
+      return (
+        <RecommendedMovieItem key={movie.id}
+          session={this.props.session}
+          movieId={movie.id}
+          imdbId={movie.imdb_id}
+          trailerList={this.props.movieTrailers[movie.imdb_id]}
+          movieDetail={this.props.movieDetails[movie.imdb_id]}
+          playTrailer={this.playTrailer}
+          dispatchMovieSkip={this.props.dispatchMovieSkip}
+          dispatchMovieRatingPost={this.props.dispatchMovieRatingPost}
+          dispatchMovieRatingRecord={this.props.dispatchMovieRatingRecord}
+          dispatchMovieDetailFetch={this.props.dispatchMovieDetailFetch}
+          dispatchMovieTrailerFetch={this.props.dispatchMovieTrailerFetch} />
+      );
+    });
   }
 
   get movies() {
@@ -122,6 +161,8 @@ class RecommendationIndex extends React.Component {
 }
 
 const mapReduxStateToProps = (state) => ({
+  session: state.session,
+  movieDetails: state.movieDetails,
   movieTrailers: state.movieTrailers,
   movieYearRange: state.movieYearRange,
   moviePopularityPercentile: state.moviePopularityPercentile,
@@ -130,7 +171,12 @@ const mapReduxStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   dispatchSetMovieYearRange: (minYear, maxYear) => dispatch(setMovieYearRange(minYear, maxYear)),
-  dispatchSetMoviePopularityPercentile: (percentile) => dispatch(setMoviePopularityPercentile(percentile))
+  dispatchSetMoviePopularityPercentile: (percentile) => dispatch(setMoviePopularityPercentile(percentile)),
+  dispatchMovieSkip: (movieId) => dispatch(movieSkip(movieId)),
+  dispatchMovieRatingPost: (movieId, rating) => dispatch(movieRatingPost(movieId, rating)),
+  dispatchMovieRatingRecord: (movieId, rating) => dispatch(movieRatingRecord(movieId, rating)),
+  dispatchMovieDetailFetch: (imdbId) => dispatch(movieDetailFetch(imdbId)),
+  dispatchMovieTrailerFetch: (imdbId) => dispatch(movieTrailerFetch(imdbId))
 });
 
 export default connect(mapReduxStateToProps, mapDispatchToProps)(RecommendationIndex);

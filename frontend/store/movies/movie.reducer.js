@@ -9,6 +9,7 @@ import { ALL_MOVIES_FETCH_SUCCESS, ALL_MOVIES_FETCH_FAIL } from './movie.action'
 import { POPULAR_MOVIES_FETCH_SUCCESS, POPULAR_MOVIES_FETCH_FAIL } from './movie.action';
 import { RECOMMENDED_MOVIES_FETCH_SUCCESS, RECOMMENDED_MOVIES_FETCH_FAIL } from './movie.action';
 import { MOVIE_SKIPPED } from './movie.action';
+import { MOVIE_RATING_POST_SUCCESS, MOVIE_RATING_RECORDED } from './rating.action';
 
 
 function allMovieReducer(state = {}, action) {
@@ -82,11 +83,26 @@ function skippedMovieReducer(state = new Set(), action) {
   }
 }
 
+function ratedMovieReducer(state = new Set(), action) {
+  Object.freeze(state);
+
+  switch (action.type) {
+    case MOVIE_RATING_POST_SUCCESS:
+    case MOVIE_RATING_RECORDED:
+      state.add(action.movieId);
+      return state;
+
+    default:
+      return state;
+  }
+}
+
 // NOTE: The keys (popular, recommended, and skipped) are holding a set while the key 'all' is holding all
 // the data of the movies. This is to minimize data duplication and to improve performance of front end.
 export default combineReducers({
   all: allMovieReducer,
   popular: popularMovieReducer,
   recommended: recommendedMovieReducer,
+  rated: ratedMovieReducer,
   skipped: skippedMovieReducer
 });

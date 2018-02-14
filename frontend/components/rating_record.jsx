@@ -51,6 +51,11 @@ class RatingRecord extends React.Component {
     }
   }
 
+  // TODO: REMOVE THIS
+  componentDidMount() {
+    this.props.dispatchRecommendedMoviesFetch(this.props.session, this.props.movieRatings);
+  }
+
   render() {
     return (
       <div className="rating-record-container">

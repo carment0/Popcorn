@@ -17,7 +17,7 @@ import PosterSlider from './poster_slider';
 
 // Store imports
 import { popularMoviesFetch, movieSkip } from '../../store/movies/movie.action';
-import { movieDetailFetch, movieTrailerFetch } from '../../store/movies/detail.action';
+import { movieDetailFetch } from '../../store/movies/detail.action';
 import { movieRatingPost, movieRatingRecord } from '../../store/movies/rating.action';
 
 // Style imports
@@ -189,7 +189,6 @@ const mapDispatchToProps = (dispatch) => {
     dispatchPopularMoviesFetch: () => dispatch(popularMoviesFetch()),
     dispatchMovieSkip: (movieId) => dispatch(movieSkip(movieId)),
     dispatchMovieDetailFetch: (imdbId) => dispatch(movieDetailFetch(imdbId)),
-    dispatchMovieTrailerFetch: (imdbId) => dispatch(movieTrailerFetch(imdbId)),
     dispatchMovieRatingRecord: (movieId, rating) => dispatch(movieRatingRecord(movieId, rating)),
     dispatchMovieRatingPost: (movieId, rating) => dispatch(movieRatingPost(movieId, rating))
   };

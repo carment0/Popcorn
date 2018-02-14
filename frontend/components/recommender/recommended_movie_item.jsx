@@ -17,7 +17,7 @@ import './recommended_movie_item.scss';
 class RecommendedMovieItem extends React.Component {
   static propTypes = {
     movieDetail: PropTypes.object,
-    movieTrailers: PropTypes.array,
+    trailerList: PropTypes.array,
     session: PropTypes.object.isRequired,
     movieId: PropTypes.number.isRequired,
     imdbId: PropTypes.string.isRequired,
@@ -30,7 +30,7 @@ class RecommendedMovieItem extends React.Component {
   }
 
   static defaultProps = {
-    movieTrailers: [],
+    trailerList: [],
     movieDetail: {
       isDefaultProp: true,
       title: 'Loading...',
@@ -78,9 +78,21 @@ class RecommendedMovieItem extends React.Component {
     this.props.playTrailer(this.props.imdbId);
   };
 
+  get poster() {
+    if (this.props.movieDetail.poster) {
+      return (
+        <section className="poster">
+          <img id={this.props.movieId} src={this.props.movieDetail.poster} alt="Movie Poster" />
+        </section>
+      );
+    }
+
+    return <section className="poster" />;
+  }
+
   componentDidMount() {
     this.fetchMovieDetail();
-    if (this.props.movieTrailers.length === 0) {
+    if (this.props.trailerList.length === 0) {
       this.props.dispatchMovieTrailerFetch(this.props.imdbId);
     }
   }
@@ -94,24 +106,11 @@ class RecommendedMovieItem extends React.Component {
   render() {
     const buttons = [];
 
-    // When there is no movie trailers, we shouldn't even show a button to prompt user to play trailer.
-    if (this.props.movieTrailers && this.props.movieTrailers.length > 0) {
-      buttons.push(
-        <FlatButton key="play"
-          label="Play Trailer"
-          primary={true}
-          onTouchTap={this.handleTrailerPlay}
-          onClick={this.handleTrailerPlay} />
-      );
+    if (this.props.trailerList.length > 0) {
+      buttons.push(<FlatButton key="play" label="Play Trailer" primary={true} onClick={this.handleTrailerPlay} />);
     }
 
-    buttons.push(
-      <FlatButton key="skip"
-        label="Not Interested"
-        secondary={true}
-        onTouchTap={this.handleMovieSkip}
-        onClick={this.handleMovieSkip} />
-    );
+    buttons.push(<FlatButton key="skip" label="Not Interested" secondary={true} onClick={this.handleMovieSkip} />);
 
     // The reason for nesting a content box inside recommended movie item is that the content box has a row flex
     // direction and the recommended movie item has a column flex direction. Also, adding padding from outer layer is

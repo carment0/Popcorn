@@ -21,6 +21,10 @@ class MovieTrailerPlayer extends React.Component {
     videoSourceList: PropTypes.array.isRequired
   };
 
+  componentWillReceiveProps() {
+    this.setState({ idx: 0 });
+  }
+
   handleVideoEnded = () => {
     let idx = this.state.idx;
     if (this.state.idx < this.props.videoSourceList.length) {
@@ -35,6 +39,7 @@ class MovieTrailerPlayer extends React.Component {
   };
 
   render() {
+    console.log('Playing: ', this.props.videoSourceList[this.state.idx]);
     if (this.props.videoSourceList.length > 0) {
       return (
         <ReactPlayer
@@ -42,8 +47,7 @@ class MovieTrailerPlayer extends React.Component {
           height="450"
           onEnded={this.handleVideoEnded}
           url={this.props.videoSourceList[this.state.idx]}
-          loop={true}
-          playing={true} />
+          playing />
       );
     }
   }

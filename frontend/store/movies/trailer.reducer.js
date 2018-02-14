@@ -4,10 +4,10 @@
  */
 
 import merge from 'lodash/merge';
-import { MOVIE_TRAILER_FETCH_SUCCESS, MOVIE_TRAILER_FETCH_FAIL } from './detail.action';
+import { MOVIE_TRAILER_FETCH_SUCCESS, MOVIE_TRAILER_FETCH_FAIL } from './trailer.action';
 
 
-export default function movieDetailReducer(state = {}, action) {
+export default function movieTrailerReducer(state = {}, action) {
   Object.freeze(state);
 
   switch (action.type) {
