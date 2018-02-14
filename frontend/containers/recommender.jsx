@@ -23,6 +23,7 @@ class Recommender extends React.Component {
   static propTypes = {
     movies: PropTypes.object.isRequired,
     session: PropTypes.object.isRequired,
+    movieRatings: PropTypes.object.isRequired,
     dispatchAllMovieFetch: PropTypes.func.isRequired
   };
 
@@ -47,10 +48,13 @@ class Recommender extends React.Component {
   }
 
   render() {
-    if (this.props.movies.recommended.size !== 0) {
+    if (Object.keys(this.props.movieRatings).length < 10) {
       return (
         <section className="recommender">
-          <h3>Recommendations are not ready</h3>
+          <header>
+            <h3>Recommendations are not ready</h3>
+            <p>{"You haven't rated enough movies for the system to recommend you anything."}</p>
+          </header>
         </section>
       );
     }
@@ -66,7 +70,8 @@ class Recommender extends React.Component {
 
 const mapReduxStateToProps = (state) => ({
   session: state.session,
-  movies: state.movies
+  movies: state.movies,
+  movieRatings: state.movieRatings
 });
 
 const mapDispatchToProps = (dispatch) => ({

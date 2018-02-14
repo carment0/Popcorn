@@ -26,13 +26,13 @@ func LoadRoutes(db *gorm.DB) http.Handler {
 	api.Handle("/users/authenticate", handler.NewTokenAuthenticateHandler(db)).Methods("GET")
 
 	// Users related
+	api.Handle("/users/{username}/recommend", handler.NewPersonalizedRecommendationHandler(db)).Methods("GET")
 	api.Handle("/users/register", handler.NewUserCreateHandler(db)).Methods("POST")
-	api.Handle("/users/preference", handler.NewUserPreferenceHandler(db)).Methods("POST")
 	api.Handle("/users", handler.NewUserListHandler(db)).Methods("GET")
 
 	// Movies related
-	api.Handle("/movies/popular", handler.NewMovieMostViewedHandler(db)).Methods("GET")
-	api.Handle("/movies/recommend", handler.NewMovieRecommendationHandler(db)).Methods("GET")
+	api.Handle("/movies/popular", handler.NewPopularMovieListHandler(db)).Methods("GET")
+	api.Handle("/movies/recommend", handler.NewMovieRecommendationHandler(db)).Methods("POST")
 	api.Handle("/movies", handler.NewMovieListHandler(db)).Methods("GET")
 
 	// Ratings related

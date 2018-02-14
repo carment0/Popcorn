@@ -41,7 +41,7 @@ class PopularitySelector extends React.Component {
 
     switch (this.state.percentile) {
       case 0:
-        title = 'Movies with any reviews';
+        title = 'Any movie';
         break;
       case 20:
         title = '> 20th percentile';
@@ -53,7 +53,7 @@ class PopularitySelector extends React.Component {
         title = '> 80th percentile';
         break;
       case 100:
-        title = 'Most reviewed movies';
+        title = 'Most highly reviewed movies';
         break;
     }
 

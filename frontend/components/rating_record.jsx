@@ -13,6 +13,7 @@ import RatedMovieItem from './rated_movie_item';
 
 // Store imports
 import { movieDetailFetch } from '../store/movies/detail.action';
+import { recommendedMoviesFetch } from '../store/movies/movie.action';
 
 // Style imports
 import './rating_record.scss';
@@ -20,10 +21,12 @@ import './rating_record.scss';
 
 class RatingRecord extends React.Component {
   static propTypes = {
+    session: PropTypes.object.isRequired,
     movies: PropTypes.object.isRequired,
     movieRatings: PropTypes.object.isRequired,
     movieDetails: PropTypes.object.isRequired,
     dispatchMovieDetailFetch: PropTypes.func.isRequired,
+    dispatchRecommendedMoviesFetch: PropTypes.func.isRequired
   };
 
   get ratedMovies() {
@@ -42,6 +45,12 @@ class RatingRecord extends React.Component {
     });
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (Object.keys(this.props.movieRatings).length < 10 && Object.keys(nextProps.movieRatings).length === 10) {
+      this.props.dispatchRecommendedMoviesFetch(this.props.session, nextProps.movieRatings);
+    }
+  }
+
   render() {
     return (
       <div className="rating-record-container">
@@ -55,15 +64,17 @@ class RatingRecord extends React.Component {
 
 const mapReduxStateToProps = (state) => {
   return {
+    session: state.session,
     movies: state.movies,
     movieRatings: state.movieRatings,
-    movieDetails: state.movieDetails
+    movieDetails: state.movieDetails,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    dispatchMovieDetailFetch: (imdbId) => dispatch(movieDetailFetch(imdbId))
+    dispatchMovieDetailFetch: (imdbId) => dispatch(movieDetailFetch(imdbId)),
+    dispatchRecommendedMoviesFetch: (session, ratings) => dispatch(recommendedMoviesFetch(session, ratings))
   };
 };
 

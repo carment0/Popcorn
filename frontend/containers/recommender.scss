@@ -8,4 +8,12 @@
   flex-direction: row;
   justify-content: center;
   align-items: flex-start;
+
+  header {
+    display: flex;
+    flex-direction: column;
+    p {
+      font-size: 1rem;
+    }
+  }
 }

@@ -16,7 +16,7 @@ import MovieItem from './movie_item';
 import PosterSlider from './poster_slider';
 
 // Store imports
-import { mostViewedMoviesFetch, movieSkip } from '../../store/movies/movie.action';
+import { popularMoviesFetch, movieSkip } from '../../store/movies/movie.action';
 import { movieDetailFetch, movieTrailerFetch } from '../../store/movies/detail.action';
 import { movieRatingPost, movieRatingRecord } from '../../store/movies/rating.action';
 
@@ -38,21 +38,21 @@ class MovieIndex extends React.Component {
     dispatchMovieDetailFetch: PropTypes.func.isRequired,
     dispatchMovieRatingPost: PropTypes.func.isRequired,
     dispatchMovieRatingRecord: PropTypes.func.isRequired,
-    dispatchMostViewedMoviesFetch: PropTypes.func.isRequired
+    dispatchPopularMoviesFetch: PropTypes.func.isRequired
   };
 
   handleButtonClickMoreMovies = () => {
-    if (this.props.movies.mostViewed.size > 0 && Object.keys(this.props.movies.all).length > 0) {
-      this.shuffleMoviesAndSetDisplay(this.props.movies.all, this.props.movies.mostViewed);
+    if (this.props.movies.popular.size > 0 && Object.keys(this.props.movies.all).length > 0) {
+      this.shuffleMoviesAndSetDisplay(this.props.movies.all, this.props.movies.popular);
     } else {
-      this.props.dispatchMostViewedMoviesFetch();
+      this.props.dispatchPopularMoviesFetch();
     }
   };
 
-  shuffleMoviesAndSetDisplay = (movies, mostViewedSet) => {
-    if (mostViewedSet.size > 0 && Object.keys(movies).length > 0) {
+  shuffleMoviesAndSetDisplay = (movies, popularSet) => {
+    if (popularSet.size > 0 && Object.keys(movies).length > 0) {
       const displayMovies = {};
-      _.shuffle(Array.from(mostViewedSet)).slice(0, 12).forEach((movieId) => {
+      _.shuffle(Array.from(popularSet)).slice(0, 12).forEach((movieId) => {
         const movie = movies[movieId];
         displayMovies[movieId] = movie;
       });
@@ -62,7 +62,7 @@ class MovieIndex extends React.Component {
   };
 
   get instruction() {
-    const instruction = `These are some of the most viewed American films. We think it is very likely that you have
+    const instruction = `These are some of the most popular American films. We think it is very likely that you have
     seen at least some of them.  If you have seen them, whether you like or dislike them, let us know and give them
     ratings! It will help our backend machine learning algorithm to learn your taste and preference`;
     const ratingCount = Object.keys(this.props.movieRatings).length;
@@ -90,7 +90,7 @@ class MovieIndex extends React.Component {
     );
   }
 
-  get mostViewedMovieItems() {
+  get popularMovieItems() {
     // Filter away the rated items.
     const unratedMovieIds = Object.keys(this.state.displayMovies).filter((movieId) => {
       return !this.props.movieRatings[movieId];
@@ -114,27 +114,27 @@ class MovieIndex extends React.Component {
   }
 
   componentDidMount() {
-    if (Object.keys(this.props.movies.mostViewed).length === 0) {
-      this.props.dispatchMostViewedMoviesFetch();
+    if (Object.keys(this.props.movies.popular).length === 0) {
+      this.props.dispatchPopularMoviesFetch();
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    const mostViewedMoviesPropHasChanged = this.props.movies.mostViewed.size !== nextProps.movies.mostViewed.size;
+    const popularMoviesPropHasChanged = this.props.movies.popular.size !== nextProps.movies.popular.size;
 
     const moviesPropHasChanged = (
       Object.keys(this.props.movies.all).length !== Object.keys(nextProps.movies.all).length
     );
 
-    if (mostViewedMoviesPropHasChanged || moviesPropHasChanged) {
+    if (popularMoviesPropHasChanged || moviesPropHasChanged) {
       console.log('Prop has changed, now shuffle movie and display!');
-      this.shuffleMoviesAndSetDisplay(nextProps.movies.all, nextProps.movies.mostViewed);
+      this.shuffleMoviesAndSetDisplay(nextProps.movies.all, nextProps.movies.popular);
     }
   }
 
   render() {
     const progressPercentage = (100 * Object.keys(this.props.movieRatings).length) / 10;
-    if (this.props.movies.mostViewed.size === 0 || Object.keys(this.props.movies.all) === 0) {
+    if (this.props.movies.popular.size === 0 || Object.keys(this.props.movies.all) === 0) {
       return (
         <article className="movie-index">
           <section className="header">
@@ -159,7 +159,7 @@ class MovieIndex extends React.Component {
         {this.instruction}
         <LinearProgress mode="determinate" value={progressPercentage} />
         <div className="movies">
-          { this.mostViewedMovieItems }
+          { this.popularMovieItems }
         </div>
         <section className="footer">
           <Button
@@ -186,7 +186,7 @@ const mapReduxStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    dispatchMostViewedMoviesFetch: () => dispatch(mostViewedMoviesFetch()),
+    dispatchPopularMoviesFetch: () => dispatch(popularMoviesFetch()),
     dispatchMovieSkip: (movieId) => dispatch(movieSkip(movieId)),
     dispatchMovieDetailFetch: (imdbId) => dispatch(movieDetailFetch(imdbId)),
     dispatchMovieTrailerFetch: (imdbId) => dispatch(movieTrailerFetch(imdbId)),

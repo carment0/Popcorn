@@ -27,23 +27,23 @@ export const allMoviesFetch = () => (dispatch) => {
     .catch((error) => dispatch({ type: ALL_MOVIES_FETCH_FAIL, error }));
 };
 
-export const MOST_VIEWED_MOVIES_FETCH_SUCCESS = 'MOST_VIEWED_MOVIES_FETCH_SUCCESS';
-export const MOST_VIEWED_MOVIES_FETCH_FAIL = 'MOST_VIEWED_MOVIES_FETCH_FAIL';
+export const POPULAR_MOVIES_FETCH_SUCCESS = 'POPULAR_MOVIES_FETCH_SUCCESS';
+export const POPULAR_MOVIES_FETCH_FAIL = 'POPULAR_MOVIES_FETCH_FAIL';
 
 /**
  * Fetch movies ranked by popularity from the server. Popularity is determined by number of views and average rating
  * score. The current endpoint returns all movie and this may become a problem. It is better to provide a limit.
  * @returns {Promise}
  */
-export const mostViewedMoviesFetch = () => (dispatch) => {
+export const popularMoviesFetch = () => (dispatch) => {
   return request.get('api/movies/popular')
     .then((res) => {
       return dispatch({
-        type: MOST_VIEWED_MOVIES_FETCH_SUCCESS,
+        type: POPULAR_MOVIES_FETCH_SUCCESS,
         payload: res.data
       });
     })
-    .catch((error) => dispatch({ type: MOST_VIEWED_MOVIES_FETCH_FAIL, error }));
+    .catch((error) => dispatch({ type: POPULAR_MOVIES_FETCH_FAIL, error }));
 };
 
 export const RECOMMENDED_MOVIES_FETCH_SUCCESS = 'RECOMMENDED_MOVIES_FETCH_SUCCESS';
@@ -58,13 +58,9 @@ export const RECOMMENDED_MOVIES_FETCH_FAIL = 'RECOMMENDED_MOVIES_FETCH_FAIL';
  * @param {object} ratingMap
  * @returns {Promise}
  */
-export const recommendedMoviesFetch = (userId, ratingMap) => (dispatch) => {
-  if (userId) {
-    const config = {
-      params: { userId }
-    };
-
-    return request.get('api/movies/recommendation', config)
+export const recommendedMoviesFetch = (session, ratings) => (dispatch) => {
+  if (session.currentUser) {
+    return request.get(`api/users/${session.currentUser.username}/recommend`)
       .then((res) => {
         return dispatch({
           type: RECOMMENDED_MOVIES_FETCH_SUCCESS,
@@ -74,7 +70,7 @@ export const recommendedMoviesFetch = (userId, ratingMap) => (dispatch) => {
       .catch((error) => dispatch({ type: RECOMMENDED_MOVIES_FETCH_FAIL, error }));
   }
 
-  return request.post('api/movies/recommendation', ratingMap)
+  return request.post('api/movies/recommend', { ratings })
     .then((res) => {
       return dispatch({
         type: RECOMMENDED_MOVIES_FETCH_SUCCESS,

@@ -12,7 +12,7 @@ import (
 
 func NewMovieListHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var movies []model.Movie
+		var movies []*model.Movie
 		if err := db.Order("year desc").Find(&movies).Error; err != nil {
 			RenderError(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -27,9 +27,9 @@ func NewMovieListHandler(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
-func NewMovieMostViewedHandler(db *gorm.DB) http.HandlerFunc {
+func NewPopularMovieListHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var movies []model.Movie
+		var movies []*model.Movie
 		if err := db.Limit(300).Order("num_rating desc").Order("average_rating desc").Find(&movies).Error; err != nil {
 			RenderError(w, err.Error(), http.StatusInternalServerError)
 			return
