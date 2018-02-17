@@ -39,3 +39,8 @@ type MovieDetail struct {
 	IMDBID string          `gorm:"primary_key" json:"-"`
 	Data   json.RawMessage `gorm:"type:bytea"  json:"-"`
 }
+
+type MovieTrailer struct {
+	IMDBID string          `gorm:"primary_key" json:"-"`
+	Data   json.RawMessage `gorm:"type:bytea"  json:"-"`
+}
