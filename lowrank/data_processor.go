@@ -5,10 +5,10 @@
 package lowrank
 
 import (
+	"fmt"
+	"github.com/sirupsen/logrus"
 	"gonum.org/v1/gonum/mat"
 	"math/rand"
-	"github.com/sirupsen/logrus"
-	"fmt"
 )
 
 const TEST_RATIO = 0.10
@@ -25,7 +25,7 @@ type DataProcessor struct {
 	TrainRatingMap map[int]map[int]float64
 
 	// Test set is what we use to benchmark the accuracy of our model
-	TestRatingMap  map[int]map[int]float64
+	TestRatingMap map[int]map[int]float64
 }
 
 func NewDataProcessor(ratingFilePath string, movieFilepath string) (*DataProcessor, error) {
@@ -33,7 +33,7 @@ func NewDataProcessor(ratingFilePath string, movieFilepath string) (*DataProcess
 
 	var movieMap map[int]*Movie
 	var trainSet map[int]map[int]float64
-	var testSet  map[int]map[int]float64
+	var testSet map[int]map[int]float64
 	var loadErr error
 
 	movieMap, loadErr = loadMovies(movieFilepath)
@@ -91,7 +91,7 @@ func NewDataProcessor(ratingFilePath string, movieFilepath string) (*DataProcess
 	}
 
 	fmtString := "CSV data are loaded with %d training samples and %d test samples from %d users on %d movies"
-	logMessage := fmt.Sprintf(fmtString, trainSetCount, testSetCount, i + 1, j + 1)
+	logMessage := fmt.Sprintf(fmtString, trainSetCount, testSetCount, len(userIdToIndex), len(movieIdToIndex))
 	logrus.WithField("file", "lowrank.data_processor").Infof(logMessage)
 
 	return &DataProcessor{

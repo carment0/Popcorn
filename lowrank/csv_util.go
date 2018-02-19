@@ -105,17 +105,24 @@ func loadRatingsByUserID(filepath string, userMaxNum int) (map[int]map[int]float
 			}
 
 			if _, ok := ratingsByUserID[int(userID)]; !ok {
-				if len(ratingsByUserID) >= userMaxNum {
-					// Skip adding new user if the number of users has already reached capacity
-					continue
-				}
-
 				ratingsByUserID[int(userID)] = make(map[int]float64)
 			}
 
 			ratingsByUserID[int(userID)][int(movieID)] = rating
 		}
 
-		return ratingsByUserID, nil
+		// We are only interested in users who have rated at least 300 movies.
+		reducedMap := make(map[int]map[int]float64)
+		for userId := range ratingsByUserID {
+			if len(ratingsByUserID[userId]) > 300 {
+				reducedMap[userId] = ratingsByUserID[userId]
+			}
+
+			if len(reducedMap) == userMaxNum {
+				break
+			}
+		}
+
+		return reducedMap, nil
 	}
 }

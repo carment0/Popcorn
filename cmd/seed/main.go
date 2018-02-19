@@ -40,12 +40,12 @@ func main() {
 	}
 
 	var movieModelsMap map[uint]*model.Movie
-	var movieRatingsMap map[uint][]float64
+	var moviePopularityMap map[uint]map[string]float64
 	var featuresMap map[uint][]float64
 	var metadataMap map[uint]map[string]string
 	var loadError error
 
-	movieModelsMap, loadError = LoadMoviesCSVFile("dataset/movies.csv")
+	movieModelsMap, loadError = loadMoviesCSVFile("dataset/movies.csv")
 	if loadError != nil {
 		logrus.Fatal("Failed to load movie models from CSV data:", loadError)
 		return
@@ -53,15 +53,15 @@ func main() {
 		logrus.Info("Movie models are loaded from csv files")
 	}
 
-	movieRatingsMap, loadError = LoadRatingsCSVFile("dataset/ratings.csv")
+	moviePopularityMap, loadError = loadPopularityCSVFile("dataset/popularity.csv")
 	if loadError != nil {
-		logrus.Fatal("Failed to load movie ratings from CSV data:", loadError)
+		logrus.Fatal("Failed to load movie popularities from CSV data:", loadError)
 		return
 	} else {
-		logrus.Info("Movie ratings map by movie ID are loaded from csv files")
+		logrus.Info("Movie popularities are loaded from csv files")
 	}
 
-	metadataMap, loadError = LoadMetadataCSVFile("dataset/links.csv")
+	metadataMap, loadError = loadMetadataCSVFile("dataset/links.csv")
 	if loadError != nil {
 		logrus.Fatal("Failed to load movie metadata from CSV data:", loadError)
 		return
@@ -69,7 +69,7 @@ func main() {
 		logrus.Info("Movie metadata are loaded from csv files")
 	}
 
-	featuresMap, loadError = LoadFeatureCSVFile("dataset/features.csv")
+	featuresMap, loadError = loadFeatureCSVFile("dataset/features.csv")
 	if loadError != nil {
 		logrus.Error("Failed to load movie features from CSV data:", loadError)
 	} else {
@@ -88,9 +88,9 @@ func main() {
 	for movieID := range movieModelsMap {
 		movie := movieModelsMap[movieID]
 
-		if ratingList, ok := movieRatingsMap[movieID]; ok {
-			movie.AverageRating = Average(ratingList)
-			movie.NumRating = len(ratingList)
+		if dict, ok := moviePopularityMap[movieID]; ok {
+			movie.AverageRating = dict["avg_rating"]
+			movie.NumRating = int(dict["num_rating"])
 		}
 
 		if dict, ok := metadataMap[movieID]; ok {
@@ -110,5 +110,4 @@ func main() {
 	}
 
 	logrus.Infof("Completed seeding %d movies", count)
-
 }

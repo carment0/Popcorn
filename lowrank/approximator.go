@@ -5,9 +5,9 @@
 package lowrank
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"gonum.org/v1/gonum/mat"
-	"fmt"
 	"math"
 )
 
@@ -54,7 +54,7 @@ func (a *Approximator) Loss(reg float64) (float64, float64, error) {
 			for movieID := range a.DataProcessor.TestRatingMap[userID] {
 				i := a.DataProcessor.UserIDToIndex[userID]
 				j := a.DataProcessor.MovieIDToIndex[movieID]
-				rmse += math.Pow(prediction.At(i, j) - a.DataProcessor.TestRatingMap[userID][movieID], 2)
+				rmse += math.Pow(prediction.At(i, j)-a.DataProcessor.TestRatingMap[userID][movieID], 2)
 				count += 1.0
 			}
 		}
