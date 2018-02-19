@@ -13,9 +13,15 @@ import (
 func NewTokenAuthenticateHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie, _ := r.Cookie("session_token")
+		if cookie == nil {
+			RenderError(w, "cookie does not exist", http.StatusUnauthorized)
+			return
+		}
+
 		if currentUser, err := FindUserByToken(db, cookie.Value); err == nil {
 			if bytes, err := json.Marshal(currentUser); err != nil {
 				RenderError(w, err.Error(), http.StatusInternalServerError)
+				return
 			} else {
 				w.WriteHeader(http.StatusOK)
 				w.Write(bytes)

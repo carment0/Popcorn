@@ -93,7 +93,7 @@ func NewPersonalizedRecommendationHandler(db *gorm.DB) http.HandlerFunc {
 				recommendations = append(recommendations, movies[j])
 			}
 
-			if len(recommendations) == 10  {
+			if len(recommendations) == 10 {
 				break
 			}
 		}

@@ -59,7 +59,8 @@ class RecommendedMovieItem extends React.Component {
    */
   handleRatingSelect = (ratingValue) => {
     if (this.props.session.currentUser !== null) {
-      this.props.dispatchMovieRatingPost(this.props.movieId, ratingValue);
+      this.props.dispatchMovieRatingPost(this.props.movieId, this.props.session.currentUser.id, ratingValue);
+      return;
     }
 
     this.props.dispatchMovieRatingRecord(this.props.movieId, ratingValue);

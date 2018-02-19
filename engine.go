@@ -31,8 +31,8 @@ type Notification struct {
 	Message string `json:"message"`
 }
 
-func (re *RecommendEngine) ListenToInbound(inbound chan *model.User) {
-	for user := range inbound {
+func (re *RecommendEngine) ListenToInbound(queue chan *model.User) {
+	for user := range queue {
 		var movies []model.Movie
 		if err := re.DBConn.Order("id asc").Find(&movies).Error; err != nil {
 			logrus.WithField(

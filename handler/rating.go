@@ -30,7 +30,7 @@ func NewRatingListHandler(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
-func NewRatingCreateHandler(db *gorm.DB, recommendRequestChan chan *model.User) http.HandlerFunc {
+func NewRatingCreateHandler(db *gorm.DB, updateUserPreferenceQueue chan *model.User) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 
@@ -47,7 +47,11 @@ func NewRatingCreateHandler(db *gorm.DB, recommendRequestChan chan *model.User) 
 
 		var user model.User
 		if err := db.Where("id = ?", rating.UserID).Preload("Ratings").First(&user).Error; err == nil {
-			recommendRequestChan <- &user
+			// If the recommendation engine is too busy, we should just drop the request.
+			select {
+			case updateUserPreferenceQueue <- &user:
+			default:
+			}
 		}
 
 		if bytes, err := json.Marshal(&rating); err != nil {

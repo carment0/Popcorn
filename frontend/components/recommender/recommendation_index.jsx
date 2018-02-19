@@ -173,7 +173,7 @@ const mapDispatchToProps = (dispatch) => ({
   dispatchSetMovieYearRange: (minYear, maxYear) => dispatch(setMovieYearRange(minYear, maxYear)),
   dispatchSetMoviePopularityPercentile: (percentile) => dispatch(setMoviePopularityPercentile(percentile)),
   dispatchMovieSkip: (movieId) => dispatch(movieSkip(movieId)),
-  dispatchMovieRatingPost: (movieId, rating) => dispatch(movieRatingPost(movieId, rating)),
+  dispatchMovieRatingPost: (movieId, userId, rating) => dispatch(movieRatingPost(movieId, userId, rating)),
   dispatchMovieRatingRecord: (movieId, rating) => dispatch(movieRatingRecord(movieId, rating)),
   dispatchMovieDetailFetch: (imdbId) => dispatch(movieDetailFetch(imdbId)),
   dispatchMovieTrailerFetch: (imdbId) => dispatch(movieTrailerFetch(imdbId))

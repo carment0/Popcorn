@@ -46,14 +46,13 @@ class RatingRecord extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (Object.keys(nextProps.movieRatings).length > 10) {
+    if (Object.keys(nextProps.movieRatings).length < 10) {
+      return;
+    }
+
+    if (Object.keys(nextProps.movieRatings).length !== Object.keys(this.props.movieRatings).length) {
       this.props.dispatchRecommendedMoviesFetch(this.props.session, nextProps.movieRatings);
     }
-  }
-
-  // TODO: REMOVE THIS
-  componentDidMount() {
-    this.props.dispatchRecommendedMoviesFetch(this.props.session, this.props.movieRatings);
   }
 
   render() {

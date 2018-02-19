@@ -38,14 +38,14 @@ func main() {
 	clientConnMap := make(map[uint]*websocket.Conn)
 
 	// This is the channel for communication between http handlers and a background running engine asynchronously.
-	recommendRequestChan := make(chan *model.User)
+	updateUserPreferenceQueue := make(chan *model.User, 100)
 
 	// Set up recommend engine for serving the incoming requests.
 	engine := NewRecommendEngine(db, clientConnMap)
-	go engine.ListenToInbound(recommendRequestChan)
+	go engine.ListenToInbound(updateUserPreferenceQueue)
 
 	server := &http.Server{
-		Handler:      LoadRoutes(db, recommendRequestChan),
+		Handler:      LoadRoutes(db, updateUserPreferenceQueue),
 		Addr:         port,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,

@@ -9,7 +9,7 @@ import { ALL_MOVIES_FETCH_SUCCESS, ALL_MOVIES_FETCH_FAIL } from './movie.action'
 import { POPULAR_MOVIES_FETCH_SUCCESS, POPULAR_MOVIES_FETCH_FAIL } from './movie.action';
 import { RECOMMENDED_MOVIES_FETCH_SUCCESS, RECOMMENDED_MOVIES_FETCH_FAIL } from './movie.action';
 import { MOVIE_SKIPPED } from './movie.action';
-import { MOVIE_RATING_POST_SUCCESS, MOVIE_RATING_RECORDED } from './rating.action';
+import { MOVIE_RATING_POST_SUCCESS, MOVIE_RATING_RECORDED, MOVIE_RATINGS_FETCH_SUCCESS } from './rating.action';
 
 
 function allMovieReducer(state = {}, action) {
@@ -90,6 +90,12 @@ function ratedMovieReducer(state = new Set(), action) {
     case MOVIE_RATING_POST_SUCCESS:
     case MOVIE_RATING_RECORDED:
       state.add(action.movieId);
+      return state;
+
+    case MOVIE_RATINGS_FETCH_SUCCESS:
+      action.payloads.forEach((payload) => {
+        state.add(payload.movie_id);
+      });
       return state;
 
     default:
