@@ -152,3 +152,8 @@ This number can be improved when we specifically select users who have rated mor
 |-------------:|---------:|-------|--------|--------------|---------------|----------------|----------------|------|
 | 4325055      | 480749   | 10000 | 45844  | 10           | 1e-5          | 0              | 100            |0.950 |
 | 5597934      | 621800   | 10000 | 45844  | 10           | 1e-5          | 0              | 200            |0.936 |
+
+## TODO
+[ ] Add year range and review count percentile to filter
+[ ] Seed database with the big movie set and see how things perform
+[ ] Perform similarity testing to see if the algorithm is working
