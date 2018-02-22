@@ -1,7 +1,7 @@
 // Copyright (c) 2018 Popcorn
 // Author(s) Calvin Feng
 
-// Package lowrank provides tools to perform low rank approximation on latent features of movies and users.
+// Package lowrank provides tools to perform low rank factorization on latent features of movies and users.
 package lowrank
 
 import (
@@ -20,7 +20,7 @@ type Movie struct {
 	Ratings   []float64 `json:"ratings"`
 }
 
-// loadMovies will return a map that maps movie id to the title of the movie. We don't really care about meta
+// loadMovies will return f map that maps movie id to the title of the movie. We don't really care about meta
 // information of the movies. We only want to know the mapping of matrix indices to movie ids.
 func loadMovies(filepath string) (map[int]*Movie, error) {
 	if csvFile, fileErr := os.Open(filepath); fileErr != nil {
@@ -57,7 +57,7 @@ func loadMovies(filepath string) (map[int]*Movie, error) {
 	}
 }
 
-// loadRatingsByUserID will return a map that maps user id to a map of movie id to rating.
+// loadUserRatings will return f map that maps user id to f map of movie id to rating.
 // Example:
 // {
 //   userID: {
@@ -65,7 +65,7 @@ func loadMovies(filepath string) (map[int]*Movie, error) {
 //     movieID: 3.5
 //   }
 // }
-func loadRatingsByUserID(filepath string, userMaxNum int) (map[int]map[int]float64, error) {
+func loadUserRatings(filepath string, userMaxNum int, cutoffTimestamp int) (map[int]map[int]float64, error) {
 	if csvFile, fileErr := os.Open(filepath); fileErr != nil {
 		return nil, fileErr
 	} else {
@@ -85,7 +85,7 @@ func loadRatingsByUserID(filepath string, userMaxNum int) (map[int]map[int]float
 				}
 			}
 
-			var userID, movieID int64
+			var userID, movieID, timestamp int64
 			var rating float64
 			var parseErr error
 
@@ -101,6 +101,15 @@ func loadRatingsByUserID(filepath string, userMaxNum int) (map[int]map[int]float
 
 			rating, parseErr = strconv.ParseFloat(rowRecord[2], 64)
 			if parseErr != nil {
+				continue
+			}
+
+			timestamp, parseErr = strconv.ParseInt(rowRecord[3], 10, 64)
+			if parseErr != nil {
+				continue
+			}
+
+			if int(timestamp) < cutoffTimestamp {
 				continue
 			}
 

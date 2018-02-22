@@ -9,8 +9,8 @@ import (
 	"popcorn/lowrank"
 )
 
-const INPUT_DIR = "fullset/"
-const OUTPUT_DIR = "dataset/"
+const INPUT_DIR = "datasets/26m/"
+const OUTPUT_DIR = "datasets/26m/"
 
 func init() {
 	logrus.SetFormatter(&logrus.TextFormatter{
@@ -19,18 +19,18 @@ func init() {
 }
 
 func main() {
-	processor, err := lowrank.NewDataProcessor(INPUT_DIR+"ratings.csv", INPUT_DIR+"movies.csv")
+	processor, err := lowrank.NewMatrixConverter(INPUT_DIR+"ratings.csv", INPUT_DIR+"movies.csv")
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
 	featureDim := 10
 	R := processor.GetRatingMatrix()
-	approx := lowrank.NewApproximator(R, featureDim)
-	approx.DataProcessor = processor
+	approx := lowrank.NewFactorizer(R, featureDim)
+	approx.MatrixConverter = processor
 
 	// Start training
-	approx.Train(50, 1, 0.02, 1e-5)
+	approx.Train(400, 10, 0.03, 1e-5)
 
 	J, _ := approx.MovieLatent.Dims()
 	featureMapByMovieID := make(map[int][]float64)

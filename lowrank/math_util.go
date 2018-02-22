@@ -1,7 +1,7 @@
 // Copyright (c) 2018 Popcorn
 // Author(s) Calvin Feng
 
-// Package lowrank provides tools to perform low rank approximation on latent features of movies and users.
+// Package lowrank provides tools to perform low rank factorization on latent features of movies and users.
 package lowrank
 
 import (

@@ -19,7 +19,7 @@ const (
 	LocalSSLMode    = "disable"
 )
 
-const DIR = "dataset/"
+const DIR = "datasets/100k/"
 
 func init() {
 	logrus.SetFormatter(&logrus.TextFormatter{
