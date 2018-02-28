@@ -33,7 +33,7 @@ def main():
             movie_id = row[0]
             features[movie_id] = np.array(row[1:], dtype=float)
 
-    chosen_id = '1020'
+    chosen_id = '1'
 
     distances = []
     for key in features:

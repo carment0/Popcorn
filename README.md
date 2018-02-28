@@ -138,6 +138,11 @@ grad_u = np.dot(grad_pred, M) + (reg * U)
 grad_m = np.dot(grad_pred.T, U) + (reg * M)
 ```
 
+### Iterative Approach vs Vectorized Approach
+The rating matrix is extremely sparse, more than 99% of the whole matrix is filled with zero's. This creates a huge memory
+problem as we try to include more users and movies during the training phase. The only solution to the problem is to resort
+back to an iterative approach.
+
 ### Tuning Hyperparameters
 We use 90% of our training data as the pure training set while the other 10% is our validation set. We will use this
 validation set to tune our hyper parameters such as how many features to use, what kind of regularization we should
@@ -148,12 +153,57 @@ dimension = 10`, `reg = 0`. The RMSE is approximately 0.98206.
 
 This number can be improved when we specifically select users who have rated more than 300 movies.
 
-| no. training | no. test | users | movies | feature dim. | learning rate | regularization | no. iterations | RMSE |
-|-------------:|---------:|-------|--------|--------------|---------------|----------------|----------------|------|
-| 4325055      | 480749   | 10000 | 45844  | 10           | 1e-5          | 0              | 100            |0.950 |
-| 5597934      | 621800   | 10000 | 45844  | 10           | 1e-5          | 0              | 200            |0.936 |
+| Trial | no. training | no. test | users | movies | feature dim. | learning rate | regularization | no. iterations | RMSE |
+|-------|-------------:|---------:|-------|--------|--------------|---------------|----------------|----------------|------|
+|1      | 4325055      | 480749   | 10000 | 45844  | 10           | 1e-5          | 0              | 100            |0.950 |
+|2      | 5597934      | 621800   | 10000 | 45844  | 10           | 1e-5          | 0              | 200            |0.936 |
+|3      | 10334778     | 10334778 | 60496 | 44945  | 10           | 1e-5          | 0.03           | 400            |0.869 |
+|4      | 3378567      | 375513   | 44248 | 22715  | 10           | 3e-5          | 0.03           | 400            |0.882 |
+|5      | 10336416     | 1145704  | 60496 | 44945  | 10           | 3e-5          | 0.03           | 400            |0.856 |
 
-## TODO
-[ ] Add year range and review count percentile to filter
-[ ] Seed database with the big movie set and see how things perform
-[ ] Perform similarity testing to see if the algorithm is working
+|Trial | Note                                    |
+|------|-----------------------------------------|
+| 1    | each user has at least rated 300 movies |
+| 2    | each user has at least rated 300 movies |
+| 3    | each user has at least rated 50 movies, lowering the bar will include more users with cutoff timestamp 1167609600|
+| 4    | each user has at least rated 30 movies but less than 200 ratings with cutoff timpestamp 1167609600|
+| 5    | each user has at least rated 30 movies with cutoff timestamp 1167609600|
+
+In the later experimentation, we have discovered that actually users with more ratings do not seem to provide better
+information about the movies. At first we tried users who each has at least 300 ratings. Then we moved the number to
+fewer numbers. Although selecting users with 300+ ratings give us a better RMSE, it does not mean that the feature
+vector we learned for each movie is accurate.
+
+Diversity is the key. As I included more users, around 60,000, the results of the training become better. There are two
+metrics I use to measure to fitness of a model; (1) the traditional RMSE way and (2) how well movies are clustered together.
+For example, if I pick Toy Story, the nearest neighbors should include Toy Story 2 and Toy Story 3 along with other Pixar
+animated films.
+```
+Choosen movie is Toy Story (1995)
+Nearest neigbor: Ratatouille (2007) with distance 0.003
+Nearest neigbor: Incredibles, The (2004) with distance 0.003
+Nearest neigbor: Monsters, Inc. (2001) with distance 0.005
+Nearest neigbor: Blood Diamond (2006) with distance 0.009
+Nearest neigbor: Rocky (1976) with distance 0.009
+Nearest neigbor: Finding Nemo (2003) with distance 0.011
+Nearest neigbor: Billy Elliot (2000) with distance 0.011
+Nearest neigbor: Slumdog Millionaire (2008) with distance 0.012
+Nearest neigbor: Superbad (2007) with distance 0.012
+Nearest neigbor: Fugitive, The (1993) with distance 0.012
+Nearest neigbor: Truman Show, The (1998) with distance 0.012
+Nearest neigbor: Ghostbusters (a.k.a. Ghost Busters) (1984) with distance 0.013
+Nearest neigbor: Indiana Jones and the Temple of Doom (1984) with distance 0.013
+Nearest neigbor: Illusionist, The (2006) with distance 0.013
+Nearest neigbor: Terminator, The (1984) with distance 0.013
+Nearest neigbor: Iron Man (2008) with distance 0.013
+Nearest neigbor: Toy Story 2 (1999) with distance 0.014
+Nearest neigbor: Interview with the Vampire: The Vampire Chronicles (1994) with distance 0.014
+Nearest neigbor: Fish Called Wanda, A (1988) with distance 0.014
+Nearest neigbor: Braveheart (1995) with distance 0.015
+Nearest neigbor: Lion King, The (1994) with distance 0.015
+Nearest neigbor: Nightmare Before Christmas, The (1993) with distance 0.015
+Nearest neigbor: Gone Baby Gone (2007) with distance 0.015
+Nearest neigbor: Toy Story 3 (2010) with distance 0.016
+Nearest neigbor: Airplane! (1980) with distance 0.016
+...
+```

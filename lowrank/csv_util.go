@@ -14,8 +14,9 @@ import (
 	"strconv"
 )
 
-const LeastNumRatingPerUser = 200
-const MaxNumUser = 20000
+const LeastNumRatingPerUser = 30
+const MaxNumRatingPerUser = 50000
+const MaxNumUser = 80000
 const CutoffTimestamp = 1167609600 // 01/01/2007
 
 type Movie struct {
@@ -128,9 +129,9 @@ func loadUserRatings(filepath string) (map[int]map[int]float64, error) {
 
 		// We are only interested in users who have rated at least 300 movies.
 		reducedMap := make(map[int]map[int]float64)
-		for userId := range ratingsByUserID {
-			if len(ratingsByUserID[userId]) > LeastNumRatingPerUser {
-				reducedMap[userId] = ratingsByUserID[userId]
+		for userID := range ratingsByUserID {
+			if len(ratingsByUserID[userID]) > LeastNumRatingPerUser && len(ratingsByUserID[userID]) < MaxNumRatingPerUser {
+				reducedMap[userID] = ratingsByUserID[userID]
 			}
 
 			if len(reducedMap) == MaxNumUser {

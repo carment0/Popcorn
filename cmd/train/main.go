@@ -22,6 +22,11 @@ var (
 		0,
 		"number of steps for training",
 	)
+	epoch = flag.Int(
+		"epoch",
+		1,
+		"number of steps per epoch or per report interval",
+	)
 )
 
 const InputDir = "datasets/26m/"
@@ -47,7 +52,7 @@ func main() {
 		startTime := time.Now()
 
 		// Start training
-		fact.Train(*steps, 10, 0.03, 1e-5)
+		fact.Train(*steps, *epoch, 0.03, 1e-5)
 
 		endTime := time.Now()
 
@@ -75,7 +80,7 @@ func main() {
 
 		startTime := time.Now()
 
-		iterativeFact.Train(*steps, 10, 0.03, 1e-5)
+		iterativeFact.Train(*steps, *epoch, 0.03, 3e-5)
 
 		endTime := time.Now()
 
