@@ -19,7 +19,7 @@ const (
 	LocalSSLMode    = "disable"
 )
 
-const DIR = "datasets/100k/"
+const DIR = "datasets/production/"
 
 func init() {
 	logrus.SetFormatter(&logrus.TextFormatter{
@@ -85,7 +85,7 @@ func main() {
 	movieClusterMap, loadError = loadMovieClusterCSVFile(DIR + "clusters.csv")
 	if loadError != nil {
 		logrus.Error("Failed to load movie clusters from CSV data:", loadError)
-	} else  {
+	} else {
 		logrus.Info("Movie clusters are loaded from csv files")
 	}
 

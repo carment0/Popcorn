@@ -4,19 +4,21 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"popcorn/kmeans"
 	"time"
-	"math/rand"
 )
 
-func main() {
-  rand.Seed(time.Now().Unix())
+const DIR = "datasets/production/"
 
-  movies, err := kmeans.ReadFromCSV("datasets/100k/features.csv")
-  if err != nil {
-    fmt.Println("Failed to read CSV", err)
-  } else {
-    assignedMovies := kmeans.MovieClustering(movies)
-    kmeans.WriteToCSV("datasets/100k/clusters.csv", assignedMovies)
-  }
+func main() {
+	rand.Seed(time.Now().Unix())
+
+	movies, err := kmeans.ReadFromCSV(DIR + "features.csv")
+	if err != nil {
+		fmt.Println("Failed to read CSV", err)
+	} else {
+		assignedMovies := kmeans.MovieClustering(movies)
+		kmeans.WriteToCSV(DIR + "clusters.csv", assignedMovies)
+	}
 }
