@@ -48,6 +48,11 @@ class MovieIndex extends React.Component {
     }
   };
 
+  /**
+   * Either set data from this.props or nextProps to state, it shuffles the set of popular movies and render them to display
+   * @param {Object} movies A dictionary of all movies
+   * @param {Set} popularSet A set of popular movie ID
+   */
   shuffleMoviesAndSetDisplay = (movies, popularSet) => {
     if (popularSet.size > 0 && Object.keys(movies).length > 0) {
       const displayMovies = {};
@@ -133,8 +138,10 @@ class MovieIndex extends React.Component {
   }
 
   componentDidMount() {
-    if (Object.keys(this.props.movies.popular).length === 0) {
+    if (this.props.movies.popular.size === 0) {
       this.props.dispatchPopularMoviesFetch();
+    } else {
+      this.shuffleMoviesAndSetDisplay(this.props.movies.all, this.props.movies.popular);
     }
   }
 
@@ -146,7 +153,6 @@ class MovieIndex extends React.Component {
     );
 
     if (popularMoviesPropHasChanged || moviesPropHasChanged) {
-      console.log('Prop has changed, now shuffle movie and display!');
       this.shuffleMoviesAndSetDisplay(nextProps.movies.all, nextProps.movies.popular);
     }
   }

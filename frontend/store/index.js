@@ -41,4 +41,4 @@ if (window.currentUser) {
   delete window.currentUser;
 }
 
-export default createStore(rootReducer, preloadedState, applyMiddleware(thunk, logger));
+export default createStore(rootReducer, preloadedState, applyMiddleware(thunk));
