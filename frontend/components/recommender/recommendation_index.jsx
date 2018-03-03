@@ -23,7 +23,6 @@ import { movieTrailerFetch } from '../../store/movies/trailer.action';
 import { movieRatingPost, movieRatingRecord } from '../../store/movies/rating.action';
 import { movieSkip } from '../../store/movies/movie.action';
 
-
 // Style imports
 import './recommendation_index.scss';
 
@@ -36,7 +35,6 @@ class RecommendationIndex extends React.Component {
   static propTypes = {
     session: PropTypes.object.isRequired,
     movies: PropTypes.object.isRequired,
-    movieRatings: PropTypes.object.isRequired,
     movieTrailers: PropTypes.object.isRequired,
     movieYearRange: PropTypes.object.isRequired,
     movieDetails: PropTypes.object.isRequired,
@@ -48,12 +46,6 @@ class RecommendationIndex extends React.Component {
     dispatchMovieRatingRecord: PropTypes.func.isRequired,
     dispatchMovieDetailFetch: PropTypes.func.isRequired,
     dispatchMovieTrailerFetch: PropTypes.func.isRequired
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (Object.keys(this.props.movieRatings).length !== Object.keys(nextProps.movieRatings).length) {
-      console.log('Rating is submitted.');
-    }
   }
 
   playTrailer = (imdbId) => {
@@ -168,13 +160,12 @@ class RecommendationIndex extends React.Component {
 }
 
 const mapReduxStateToProps = (state) => ({
+  movies: state.movies,
   session: state.session,
-  movieRatings: state.movieRatings,
   movieDetails: state.movieDetails,
   movieTrailers: state.movieTrailers,
   movieYearRange: state.movieYearRange,
-  moviePopularityPercentile: state.moviePopularityPercentile,
-  movies: state.movies
+  moviePopularityPercentile: state.moviePopularityPercentile
 });
 
 const mapDispatchToProps = (dispatch) => ({

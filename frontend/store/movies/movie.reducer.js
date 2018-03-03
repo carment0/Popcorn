@@ -48,10 +48,11 @@ function popularMovieReducer(state = new Set(), action) {
 
   switch (action.type) {
     case POPULAR_MOVIES_FETCH_SUCCESS:
+      const newState = new Set(state);
       action.payload.forEach((movie) => {
-        state.add(movie.id);
+        newState.add(movie.id);
       });
-      return state;
+      return newState;
 
     case POPULAR_MOVIES_FETCH_FAIL:
       console.log('Failed to fetch popular movies', action.error);
@@ -97,8 +98,9 @@ function skippedMovieReducer(state = new Set(), action) {
 
   switch (action.type) {
     case MOVIE_SKIPPED:
-      state.add(action.movieId);
-      return state;
+      const newState = new Set(state);
+      newState.add(action.movieId);
+      return newState;
 
     default:
       return state;
@@ -113,17 +115,20 @@ function skippedMovieReducer(state = new Set(), action) {
 function ratedMovieReducer(state = new Set(), action) {
   Object.freeze(state);
 
+  let newState;
   switch (action.type) {
     case MOVIE_RATING_POST_SUCCESS:
     case MOVIE_RATING_RECORDED:
-      state.add(action.movieId);
-      return state;
+      newState = new Set(state);
+      newState.add(action.movieId);
+      return newState;
 
     case MOVIE_RATINGS_FETCH_SUCCESS:
+      newState = new Set(state);
       action.payloads.forEach((payload) => {
-        state.add(payload.movie_id);
+        newState.add(payload.movie_id);
       });
-      return state;
+      return newState;
 
     default:
       return state;
