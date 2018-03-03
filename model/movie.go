@@ -26,10 +26,12 @@ type Movie struct {
 
 	// NumRating is the number of ratings of this movie received from MovieLens dataset, while average rating is the
 	// average of all the ratings received from MovieLens users.
-	NumRating     int             `gorm:"type:integer"  json:"num_rating"`
-	ClusterID     uint             `gorm:"type:integer"  json:"cluster_id"`
-	AverageRating float64         `gorm:"type:float8"   json:"average_rating"`
-	Feature       pq.Float64Array `gorm:"type:float8[]" json:"-"`
+	NumRating     		int             `gorm:"type:integer"  json:"num_rating"`
+	ClusterID     		uint            `gorm:"type:integer"  json:"cluster_id"`
+	AverageRating 		float64         `gorm:"type:float8"   json:"average_rating"`
+	Feature       		pq.Float64Array `gorm:"type:float8[]" json:"-"`
+	NearestClusters   pq.StringArray  `gorm:"type:text[]"   json:"-"`
+	FarthestClusters  pq.StringArray  `gorm:"type:text[]"   json:"-"`
 
 	// The ratings here are submitted by the users of our web application, which is different from the ratings that came
 	// from the MovieLens data set.

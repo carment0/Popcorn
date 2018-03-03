@@ -48,6 +48,7 @@ func main() {
 	var featuresMap map[uint][]float64
 	var metadataMap map[uint]map[string]string
 	var movieClusterMap map[uint]uint
+	var movieClusterRelationMap map[uint]map[string][]string
 	var loadError error
 
 	movieModelsMap, loadError = loadMoviesCSVFile(DIR + "movies.csv")
@@ -88,6 +89,13 @@ func main() {
 		logrus.Info("Movie clusters are loaded from csv files")
 	}
 
+	movieClusterRelationMap, loadError = loadMovieClusterRelationsCSVFile(DIR + "clusters.csv")
+	if loadError != nil {
+		logrus.Error("Failed to load movie clusters relations from CSV data:", loadError)
+	} else  {
+		logrus.Info("Movie clusters relations are loaded from csv files")
+	}
+
 	if db.HasTable(&model.Movie{}) {
 		db.DropTable(&model.Movie{})
 		logrus.Info("Existing \"movies\" table is dropped")
@@ -120,6 +128,11 @@ func main() {
 			if value, ok := featuresMap[movieID]; ok {
 				movie.Feature = value
 			}
+		}
+
+		if dict, ok := movieClusterRelationMap[movieID]; ok {
+			movie.NearestClusters = dict["closest"]
+			movie.FarthestClusters = dict["farthest"]
 		}
 
 		if db.Create(movie).Error == nil {

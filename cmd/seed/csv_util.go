@@ -239,3 +239,52 @@ func loadMovieClusterCSVFile(filepath string) (map[uint]uint, error) {
 		return movieByCluster, nil
 	}
 }
+
+func loadMovieClusterRelationsCSVFile(filepath string) (map[uint]map[string][]string, error) {
+	if csvFile, err := os.Open(filepath); err != nil {
+		return nil, err
+	} else {
+		reader := csv.NewReader(bufio.NewReader(csvFile))
+		movieByClusterRelation := make(map[uint]map[string][]string)
+		for {
+			var row []string
+			var readerErr error
+			row, readerErr = reader.Read()
+
+			if readerErr != nil {
+				if readerErr == io.EOF {
+					break
+				} else {
+					fmt.Printf("Unexpected reader error: %v\n", readerErr)
+					continue
+				}
+			}
+
+			clusterRelation := make(map[string][]string)
+			closeArr := []string{}
+			farArr := []string{}
+
+			var movieID uint64
+			var parseErr error
+			movieID, parseErr = strconv.ParseUint(row[0], 10, 64)
+			if parseErr != nil {
+				continue
+			}
+
+			for idx, value := range row {
+				switch {
+				case idx > 1 && idx < 6:
+					closeArr = append(closeArr, value)
+				case idx > 5 && idx < len(row):
+					farArr = append(farArr, value)
+				}
+			}
+
+			clusterRelation["closest"] = closeArr
+			clusterRelation["farthest"] = farArr
+
+			movieByClusterRelation[uint(movieID)] = clusterRelation
+		}
+		return movieByClusterRelation, nil
+	}
+}

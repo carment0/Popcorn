@@ -59,7 +59,7 @@ func WriteToCSV(filepath string, clustData []*MovieAssignments) error {
   }
 
   writer := csv.NewWriter(csvFile)
-  header := []string{"movieId", "centGroup"}
+  header := []string{"movieId", "centGroup", "close1", "close2", "close3", "close4", "far1", "far2", "far3", "far4",}
 
   if err := writer.Write(header); err != nil {
     return err
@@ -67,6 +67,13 @@ func WriteToCSV(filepath string, clustData []*MovieAssignments) error {
 
   for _, movie := range clustData {
     row := []string{movie.Movie.MovieID, strconv.Itoa(movie.Centroid.ClusterID)}
+    for _, closest := range movie.ClosestClusters {
+      row = append(row, strconv.Itoa(closest.ClusterID))
+    }
+
+    for _, farthest := range movie.FarthestClusters {
+      row = append(row, strconv.Itoa(farthest.ClusterID))
+    }
     writer.Write(row)
   }
   writer.Flush()

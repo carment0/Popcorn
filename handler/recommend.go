@@ -33,7 +33,8 @@ func NewMovieRecommendationHandler(db *gorm.DB) http.HandlerFunc {
 			fmt.Printf("User rated movie %d with %.2f\n", key, val)
 		}
 
-//<<<<<<<<
+
+
 
 		var movies []*model.Movie
 		if err := db.Limit(10).Order("year desc").Find(&movies).Error; err != nil {
