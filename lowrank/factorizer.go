@@ -18,14 +18,27 @@ type Factorizer struct {
 	MatrixConverter *MatrixConverter
 }
 
-func NewFactorizer(converter *MatrixConverter, K int) *Factorizer {
-	R := converter.GetRatingMatrix()
-	I, J := R.Dims()
+func NewFactorizer(converter *MatrixConverter, ratingMat *mat.Dense, K int) *Factorizer {
+	if converter == nil && ratingMat == nil {
+		return nil
+	}
+
+	if converter != nil {
+		R := converter.GetRatingMatrix()
+		I, J := R.Dims()
+		return &Factorizer{
+			UserLatent:      RandMat(I, K),
+			MovieLatent:     RandMat(J, K),
+			Rating:          R,
+			MatrixConverter: converter,
+		}
+	}
+
+	I, J := ratingMat.Dims()
 	return &Factorizer{
-		UserLatent:      RandMat(I, K),
-		MovieLatent:     RandMat(J, K),
-		Rating:          R,
-		MatrixConverter: converter,
+		UserLatent:  RandMat(I, K),
+		MovieLatent: RandMat(J, K),
+		Rating:      ratingMat,
 	}
 }
 
@@ -49,9 +62,9 @@ func (f *Factorizer) Loss(reg float64) (float64, float64, error) {
 	}
 
 	var rootMeanSqError float64
-
-	testCount := 0.0
 	if f.MatrixConverter != nil {
+		testCount := 0.0
+
 		for userID := range f.MatrixConverter.TestRatingMap {
 			for movieID := range f.MatrixConverter.TestRatingMap[userID] {
 				i := f.MatrixConverter.UserIDToIndex[userID]
@@ -60,9 +73,10 @@ func (f *Factorizer) Loss(reg float64) (float64, float64, error) {
 				testCount += 1.0
 			}
 		}
+
+		rootMeanSqError /= testCount
+		rootMeanSqError = math.Sqrt(rootMeanSqError)
 	}
-	rootMeanSqError /= testCount
-	rootMeanSqError = math.Sqrt(rootMeanSqError)
 
 	I, J := prediction.Dims()
 	diff := mat.NewDense(I, J, nil)
@@ -156,21 +170,13 @@ func (f *Factorizer) ApproximateUserLatent(steps int, epochSize int, reg float64
 	J, _ := f.MovieLatent.Dims()
 	for step := 0; step < steps; step += 1 {
 		if step%epochSize == 0 {
-			loss, rmse, _ := f.Loss(reg)
+			loss, _, _ := f.Loss(reg)
 
-			var logMessage string
-			if f.MatrixConverter == nil {
-				logMessage = fmt.Sprintf("iteration %3d: net loss %5.2f, avg loss %1.8f",
-					step, loss, loss/float64(I*J),
-				)
-			} else {
-				logMessage = fmt.Sprintf(
-					`iteration %3d: net loss %5.2f, avg loss %1.8f, and RMSE %1.8f`,
-					step, loss, loss/float64(I*J), rmse,
-				)
-			}
+			logMessage := fmt.Sprintf("iteration %3d: net loss %5.2f, avg loss %1.8f on %d movies",
+				step, loss, loss/float64(I*J), I*J,
+			)
 
-			logrus.WithField("file", "lowrank.factorizer").Info(logMessage)
+			logrus.WithField("src", "lowrank.factorizer").Info(logMessage)
 		}
 
 		if GradU, _, err := f.Gradients(reg); err == nil {

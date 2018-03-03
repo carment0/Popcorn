@@ -47,7 +47,7 @@ func main() {
 		if err != nil {
 			logrus.Fatal(err)
 		}
-		fact := lowrank.NewFactorizer(converter, FeatureDim)
+		fact := lowrank.NewFactorizer(converter, nil, FeatureDim)
 
 		startTime := time.Now()
 

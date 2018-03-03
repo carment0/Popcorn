@@ -36,7 +36,7 @@ func (re *RecommendEngine) ListenToInbound(queue chan *model.User) {
 		var movies []model.Movie
 		if err := re.DBConn.Order("id asc").Find(&movies).Error; err != nil {
 			logrus.WithField(
-				"file", "engine.go",
+				"src", "engine.go",
 			).Error("RecommendEngine has failed to load all movies from database", err)
 			continue
 		}
@@ -44,7 +44,7 @@ func (re *RecommendEngine) ListenToInbound(queue chan *model.User) {
 		// In case that database was not seeded properly and no movies are found in the database, we should not proceed
 		// with the algorithm.
 		if len(movies) == 0 {
-			logrus.WithField("file", "main.engine").Error("No movies are found in the database!")
+			logrus.WithField("src", "main.engine").Error("No movies are found in the database!")
 			continue
 		}
 
@@ -57,39 +57,39 @@ func (re *RecommendEngine) ListenToInbound(queue chan *model.User) {
 		}
 
 		// Allocate 0 length and K * M capacity for latent feature slice. Note: K is feature dimension and M is number of
-		// movies. Also create a rating matrix, which has a dimension of (1, M). Because we are only computing latent
-		// preference for one user.
-		latentFeatures := make([]float64, 0, featureDim*len(movies))
-		R := mat.NewDense(1, len(movies), nil)
-		for j, movie := range movies {
-			latentFeatures = append(latentFeatures, movie.Feature...)
+		// rated movies by the user. Also create a rating matrix, which has a dimension of (1, M). Because we are only
+		// computing latent preference for one user.
+		M := len(ratingMapByID)
+		movieFeatureData := make([]float64, 0, featureDim*M)
+		ratingMat := mat.NewDense(1, M, nil)
+		j := 0
+		for _, movie := range movies {
 			if val, ok := ratingMapByID[movie.ID]; ok {
-				R.Set(0, j, val)
-			} else {
-				R.Set(0, j, movie.AverageRating)
+				movieFeatureData = append(movieFeatureData, movie.Feature...)
+				ratingMat.Set(0, j, val)
+				j += 1
 			}
 		}
 
-		approximator := lowrank.NewFactorizer(nil, featureDim)
-		approximator.Rating = R
-		approximator.MovieLatent = mat.NewDense(len(movies), featureDim, latentFeatures)
-		approximator.ApproximateUserLatent(300, 100, 0, 1e-5)
+		approximator := lowrank.NewFactorizer(nil, ratingMat, featureDim)
+		approximator.MovieLatent = mat.NewDense(M, featureDim, movieFeatureData)
+		approximator.ApproximateUserLatent(300, 1, 0, 0.01)
 
 		if len(approximator.UserLatent.RawRowView(0)) == featureDim {
 			user.Preference = approximator.UserLatent.RawRowView(0)
 			if err := re.DBConn.Save(user).Error; err != nil {
 				logrus.WithField(
-					"file", "main.engine",
+					"src", "main.engine",
 				).Error("failed to save preference to user model", err)
 			} else {
 				logrus.WithField(
-					"file", "main.engine",
+					"src", "main.engine",
 				).Infof("preference for user %s is saved", user.Username)
 				// re.ConnMap[user.ID].WriteJSON(Notification{UserID: user.ID, Message: "Preference is ready!"})
 			}
 		} else {
 			logrus.WithField(
-				"file", "engine.go",
+				"src", "main.engine",
 			).Errorf(`something went wrong with approximator, user latent preference vector does not have
 				the correct length; it has %d but expected %d`,
 				len(approximator.UserLatent.RawRowView(0)),
