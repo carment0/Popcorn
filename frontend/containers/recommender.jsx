@@ -62,6 +62,15 @@ class Recommender extends React.Component {
     if (Object.keys(this.props.movies.all).length === 0) {
       this.props.dispatchAllMovieFetch();
     }
+
+    if (Object.keys(this.props.movieRatings).length >= 10) {
+      this.props.dispatchPersonalizedRecommendedMoviesFetch(
+        this.props.session,
+        this.props.movieYearRange,
+        this.props.moviePopularityPercentile,
+        this.props.movies.skipped
+      );
+    }
   }
 
   render() {

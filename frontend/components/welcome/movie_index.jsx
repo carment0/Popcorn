@@ -40,7 +40,7 @@ class MovieIndex extends React.Component {
     dispatchPopularMoviesFetch: PropTypes.func.isRequired
   };
 
-  handleButtonClickMoreMovies = () => {
+  handleClickMoreMovies = () => {
     if (this.props.movies.popular.size > 0 && Object.keys(this.props.movies.all).length > 0) {
       this.shuffleMoviesAndSetDisplay(this.props.movies.all, this.props.movies.popular);
     } else {
@@ -61,6 +61,10 @@ class MovieIndex extends React.Component {
   };
 
   get instruction() {
+    if (Object.keys(this.state.displayMovies).length === 0) {
+      return <div className="instruction" />;
+    }
+
     const instruction = `These are some of the most popular American films. We think it is very likely that you have
     seen at least some of them.  If you have seen them, whether you like or dislike them, let us know and give them
     ratings! It will help our backend machine learning algorithm to learn your taste and preference`;
@@ -111,6 +115,23 @@ class MovieIndex extends React.Component {
     });
   }
 
+  get header() {
+    if (Object.keys(this.state.displayMovies).length > 0) {
+      return (
+        <section className="header">
+          <h1>Popular Movies</h1>
+        </section>
+      );
+    }
+
+    return (
+      <section className="header">
+        <h1>Popular Movies</h1>
+        <p>{"If you don't see any movie showing below, just click the button to load more movies."}</p>
+      </section>
+    );
+  }
+
   componentDidMount() {
     if (Object.keys(this.props.movies.popular).length === 0) {
       this.props.dispatchPopularMoviesFetch();
@@ -148,9 +169,7 @@ class MovieIndex extends React.Component {
 
     return (
       <article className="movie-index">
-        <header>
-          <h1>Popular Movies</h1>
-        </header>
+        {this.header}
         <PosterSlider
           movies={this.state.displayMovies}
           movieDetails={this.props.movieDetails} />
@@ -160,11 +179,7 @@ class MovieIndex extends React.Component {
           { this.popularMovieItems }
         </div>
         <section className="footer">
-          <Button
-            bsSize="xsmall"
-            className="react-buttons"
-            onClick={this.handleButtonClickMoreMovies}
-            bsStyle="primary">
+          <Button bsSize="xsmall" className="react-buttons" onClick={this.handleClickMoreMovies} bsStyle="primary">
             Load more movies
           </Button>
         </section>

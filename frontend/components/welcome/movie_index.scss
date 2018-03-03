@@ -21,16 +21,21 @@
     }
   }
 
-  header {
+  .header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-start;
+    flex-direction: column;
     width: 100%;
 
     h1 {
       margin-left: 0.5rem;
       font-size: 2rem;
       font-weight: 800;
+    }
+
+    p {
+      margin-left: 0.5rem;
     }
   }
 
