@@ -50,7 +50,7 @@ func (re *RecommendEngine) ListenToInbound(queue chan *model.User) {
 
 		featureDim := len(movies[0].Feature)
 
-		// Construct a user rating map, mapping movie ID to user submitted movie rating.
+		// Construct a user rating map, mapping movie ID to user submitted movie rating value.
 		ratingMapByID := make(map[uint]float64)
 		for _, rating := range user.Ratings {
 			ratingMapByID[rating.MovieID] = rating.Value

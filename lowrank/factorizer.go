@@ -18,6 +18,8 @@ type Factorizer struct {
 	MatrixConverter *MatrixConverter
 }
 
+// NewFactorizer requires either a converter or a rating matrix. Converter is needed for training phase. Rating matrix
+// is needed for running new user preference approximation in the recommendation engine.
 func NewFactorizer(converter *MatrixConverter, ratingMat *mat.Dense, K int) *Factorizer {
 	if converter == nil && ratingMat == nil {
 		return nil

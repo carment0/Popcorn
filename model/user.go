@@ -15,7 +15,7 @@ type User struct {
 	UpdatedAt time.Time `json:"-"`
 
 	// User base attributes
-	Username       string          `gorm:"type:varchar(100)"              json:"username"`
+	Username       string          `gorm:"type:varchar(100);unique_index" json:"username"`
 	Preference     pq.Float64Array `gorm:"type:float8[]"                  json:"preference"`
 	SessionToken   string          `gorm:"type:varchar(100);unique_index" json:"-"`
 	PasswordDigest []byte          `gorm:"type:bytea"                     json:"-"`

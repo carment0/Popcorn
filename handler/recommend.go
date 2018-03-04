@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	"github.com/sirupsen/logrus"
 	"gonum.org/v1/gonum/mat"
 	"math/rand"
 	"net/http"
@@ -140,7 +141,10 @@ func NewPersonalizedRecommendationHandler(db *gorm.DB) http.HandlerFunc {
 		fmt.Printf("fetched %d movies\n", len(movies))
 		features := make([]float64, 0, len(movies))
 		for _, movie := range movies {
-			features = append(features, movie.Feature...)
+			if len(movie.Feature) > 0 {
+				featureData = append(featureData, movie.Feature...)
+				M += 1
+			}
 		}
 
 		// K represents the feature dimension
@@ -148,8 +152,13 @@ func NewPersonalizedRecommendationHandler(db *gorm.DB) http.HandlerFunc {
 		U := mat.NewDense(1, K, currentUser.Preference)
 		M := mat.NewDense(len(movies), K, features)
 
-		predictedRatings := mat.NewDense(1, len(movies), nil)
-		predictedRatings.Mul(U, M.T())
+		if K == 0 {
+			RenderError(w, "user has nil vector for latent preference", http.StatusInternalServerError)
+			return
+		}
+		
+		predictedRatings := mat.NewDense(1, M, nil)
+		predictedRatings.Mul(userMat, movieMat.T())
 
 		// Fetch 10 recommendations randomly
 		rand.Seed(time.Now().UTC().UnixNano())
