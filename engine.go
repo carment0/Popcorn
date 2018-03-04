@@ -9,7 +9,7 @@ import (
 	"popcorn/model"
 )
 
-type RecommendEngine struct {
+type OnlineLearningEngine struct {
 	// Database connection is necessary for updating models. Also gorm is thread safe, we can have up to N connections
 	// open from separate go routines.
 	DBConn *gorm.DB
@@ -19,8 +19,8 @@ type RecommendEngine struct {
 	ConnMap map[uint]*websocket.Conn
 }
 
-func NewRecommendEngine(db *gorm.DB, connMap map[uint]*websocket.Conn) *RecommendEngine {
-	return &RecommendEngine{
+func NewOnlineLearningEngine(db *gorm.DB, connMap map[uint]*websocket.Conn) *OnlineLearningEngine {
+	return &OnlineLearningEngine{
 		DBConn:  db,
 		ConnMap: connMap,
 	}
@@ -31,13 +31,13 @@ type Notification struct {
 	Message string `json:"message"`
 }
 
-func (re *RecommendEngine) ListenToInbound(queue chan *model.User) {
+func (re *OnlineLearningEngine) ListenToInbound(queue chan *model.User) {
 	for user := range queue {
 		var movies []model.Movie
 		if err := re.DBConn.Order("id asc").Find(&movies).Error; err != nil {
 			logrus.WithField(
 				"src", "engine.go",
-			).Error("RecommendEngine has failed to load all movies from database", err)
+			).Error("OnlineLearningEngine has failed to load all movies from database", err)
 			continue
 		}
 
@@ -73,7 +73,8 @@ func (re *RecommendEngine) ListenToInbound(queue chan *model.User) {
 
 		approximator := lowrank.NewFactorizer(nil, ratingMat, featureDim)
 		approximator.MovieLatent = mat.NewDense(M, featureDim, movieFeatureData)
-		approximator.ApproximateUserLatent(300, 50, 0, 0.01)
+		approximator.UserLatent = mat.NewDense(1, featureDim, user.Preference)
+		approximator.ApproximateUserLatent(300, 50, 0, 0.005)
 
 		if len(approximator.UserLatent.RawRowView(0)) == featureDim {
 			user.Preference = approximator.UserLatent.RawRowView(0)
@@ -99,7 +100,7 @@ func (re *RecommendEngine) ListenToInbound(queue chan *model.User) {
 	}
 }
 
-func (re *RecommendEngine) approximateUserPreference(user *model.User) error {
+func (re *OnlineLearningEngine) approximateUserPreference(user *model.User) error {
 	// Refactor the above logic into here.
 	return nil
 }

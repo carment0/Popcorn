@@ -40,8 +40,8 @@ func main() {
 	// This is the channel for communication between http handlers and a background running engine asynchronously.
 	updateUserPreferenceQueue := make(chan *model.User, 100)
 
-	// Set up recommend engine for serving the incoming requests.
-	engine := NewRecommendEngine(db, clientConnMap)
+	// Set up online learning engine for serving the incoming requests.
+	engine := NewOnlineLearningEngine(db, clientConnMap)
 	go engine.ListenToInbound(updateUserPreferenceQueue)
 
 	server := &http.Server{
