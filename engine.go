@@ -73,7 +73,7 @@ func (re *RecommendEngine) ListenToInbound(queue chan *model.User) {
 
 		approximator := lowrank.NewFactorizer(nil, ratingMat, featureDim)
 		approximator.MovieLatent = mat.NewDense(M, featureDim, movieFeatureData)
-		approximator.ApproximateUserLatent(300, 1, 0, 0.01)
+		approximator.ApproximateUserLatent(300, 50, 0, 0.01)
 
 		if len(approximator.UserLatent.RawRowView(0)) == featureDim {
 			user.Preference = approximator.UserLatent.RawRowView(0)

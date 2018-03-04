@@ -63,7 +63,6 @@ func NewPersonalizedRecommendationHandler(db *gorm.DB) http.HandlerFunc {
 			RenderError(w, "failed to parse request JSON into struct", http.StatusInternalServerError)
 			return
 		}
-		fmt.Println(payload)
 
 		var maxYear uint = 2018
 		var minYear uint = 1930
