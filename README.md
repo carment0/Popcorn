@@ -1,6 +1,36 @@
 # Popcorn
 Wonder what movie to watch next with your friends and family? Use Popcorn to fetch movie recommendations!
 
+![popcorn](./docs/popcorn_screen_cap_1.png)
+
+## How Does Popcorn Work?
+### Collaborative Filtering
+To be written by Carmen To...
+
+### Low Rank Matrix Factorization
+Suppose that our system has **I** users and **J** movies. We assign **K** latent features to each user and movie in the
+system. We can construct a matrix factorization as follows:
+
+![factorization](./docs/factorization.png)
+
+**X** represents the latent feature matrix of all users in our system. The greek letter **big theta** represents the
+latent feature matrix for all movies in our system. The matrix product of user latent features and transpose of movie
+latent features is the model predicted rating matrix.
+
+![linear-model](./docs/linear-model.png)
+
+Let **R** represents the the actual rating we received from the MovieLens dataset. For every missing value in **R**, we
+will replace them with the average rating each movie received from the poll of users. Also we have included a regularization
+term to prevent model over-fitting. Then we define the loss function as follows:
+
+![loss](./docs/loss.png)
+
+Thus, figuring out the latent features for movies and users has become a constraint optimization problem.
+
+### Mathematical Details
+Please take a look at this Jupyter notebook to find out more about the mathematics behind this machine learning algorithm:
+[Low Rank Matrix Factorization](https://github.com/calvinfeng/low-rank-factorization/blob/master/low_rank_matrix_factorization.ipynb)
+
 ## Local Development Setup
 ### Dependency
 The default choice of Go is 1.9.3 for this project and we are using `dep` to perform package dependency management. For
@@ -84,58 +114,6 @@ npm install
 And then build your scripts and style sheets
 ```
 npm run build:watch
-```
-
-## How Does Popcorn Work?
-### Collaborative Filtering
-Coming soon...
-
-### Low Rank Matrix Factorization
-Suppose that our system has **I** users and **J** movies. We assign **K** latent features to each user and movie in the
-system. We can construct a matrix factorization as follows:
-
-![factorization](./docs/factorization.png)
-
-**X** represents the latent feature matrix of all users in our system. The greek letter **big theta** represents the
-latent feature matrix for all movies in our system. The matrix product of user latent features and transpose of movie
-latent features is the model predicted rating matrix.
-
-![linear-model](./docs/linear-model.png)
-
-Let **R** represents the the actual rating we received from the MovieLens dataset. For every missing value in **R**, we
-will replace them with the average rating each movie received from the poll of users. Also we have included a regularization
-term to prevent model over-fitting. Then we define the loss function as follows:
-
-![loss](./docs/loss.png)
-
-Thus, figuring out the latent features for movies and users has become a constraint optimization problem.
-
-### Partial Derivatives & Gradients
-Let's find the gradient of **L** with respect to the output of our low-rank matrix model. The one-half term will get
-cancel out by the square term when we take the derivatives.
-
-![gradient-prediction](./docs/gradient-prediction.png)
-
-Now we proceed to seek the gradient of model output with respect to **X** and **big theta**.
-
-![gradient-user-latent](./docs/gradient-user-latent.png)
-
-![gradient-movie-latent](./docs/gradient-movie-latent.png)
-
-Using chain rule, we can then derive the following results:
-
-![gradient-u](./docs/gradient-u.png)
-
-![gradient-m](./docs/gradient-m.png)
-
-In Python
-```Python
-"""Denote U as the user latent feature matrix and M as the movie latent feature matrix"""
-model_pred = np.dot(U, M.T)
-
-grad_pred = model_pred - R
-grad_u = np.dot(grad_pred, M) + (reg * U)
-grad_m = np.dot(grad_pred.T, U) + (reg * M)
 ```
 
 ### Iterative Approach vs Vectorized Approach
