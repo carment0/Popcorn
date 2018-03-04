@@ -56,7 +56,7 @@ class MovieIndex extends React.Component {
   shuffleMoviesAndSetDisplay = (movies, popularSet) => {
     if (popularSet.size > 0 && Object.keys(movies).length > 0) {
       const displayMovies = {};
-      _.shuffle(Array.from(popularSet)).slice(0, 12).forEach((movieId) => {
+      _.shuffle(Array.from(popularSet)).slice(0, 20).forEach((movieId) => {
         const movie = movies[movieId];
         displayMovies[movieId] = movie;
       });
