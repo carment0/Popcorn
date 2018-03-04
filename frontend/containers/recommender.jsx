@@ -37,7 +37,8 @@ class Recommender extends React.Component {
         this.props.dispatchPersonalizedRecommendedMoviesFetch(
           this.props.session,
           this.props.movieYearRange,
-          this.props.moviePopularityPercentile
+          this.props.moviePopularityPercentile,
+          this.props.movies.skipped
         );
       }
 
@@ -50,7 +51,8 @@ class Recommender extends React.Component {
         this.props.dispatchPersonalizedRecommendedMoviesFetch(
           this.props.session,
           nextProps.movieYearRange,
-          nextProps.moviePopularityPercentile
+          nextProps.moviePopularityPercentile,
+          nextProps.movies.skipped
         );
       }
     }
@@ -93,8 +95,8 @@ const mapReduxStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   dispatchAllMovieFetch: () => dispatch(allMoviesFetch()),
-  dispatchPersonalizedRecommendedMoviesFetch: (session, yearRange, percentile) => {
-    return dispatch(personalizedRecommendedMoviesFetch(session, yearRange, percentile));
+  dispatchPersonalizedRecommendedMoviesFetch: (session, yearRange, percentile, skipped) => {
+    return dispatch(personalizedRecommendedMoviesFetch(session, yearRange, percentile, skipped));
   }
 });
 

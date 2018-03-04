@@ -71,18 +71,18 @@ export const recommendedMoviesFetch = (session, ratings) => (dispatch) => {
  * @param {object} session
  * @param {object} yearRange
  * @param {number} percentile
+ * @param {Set} skipped
  * @returns {Promise}
  */
-export const personalizedRecommendedMoviesFetch = (session, yearRange, percentile) => (dispatch) => {
-  const config = {
-    params: {
-      max: yearRange.maxYear,
-      min: yearRange.minYear,
-      percent: percentile
-    }
+export const personalizedRecommendedMoviesFetch = (session, yearRange, percentile, skipped) => (dispatch) => {
+  const payload = {
+    max: yearRange.maxYear,
+    min: yearRange.minYear,
+    percent: percentile,
+    skipped: [...skipped]
   };
 
-  return request.get(`api/users/${session.currentUser.id}/recommend`, config)
+  return request.post(`api/users/${session.currentUser.id}/recommend`, payload)
     .then((res) => {
       return dispatch({
         type: RECOMMENDED_MOVIES_FETCH_SUCCESS,
