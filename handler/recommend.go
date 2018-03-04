@@ -138,14 +138,19 @@ func NewPersonalizedRecommendationHandler(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 
+		M := 0
 		movieFeatureData := make([]float64, 0, len(movies))
 		for _, movie := range movies {
-			movieFeatureData = append(movieFeatureData, movie.Feature...)
+			// Notice that not all movies have a feature vector, some movies were not even rated by any user. The
+			// matrix factorization algorithm ignored those movies.
+			if len(movie.Feature) > 0 {
+				movieFeatureData = append(movieFeatureData, movie.Feature...)
+				M += 1
+			}
 		}
 
 		// K represents the feature dimension
 		K := len(currentUser.Preference)
-		M := len(movies)
 		userMat := mat.NewDense(1, K, currentUser.Preference)
 		movieMat := mat.NewDense(M, K, movieFeatureData)
 
