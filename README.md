@@ -27,9 +27,20 @@ term to prevent model over-fitting. Then we define the loss function as follows:
 
 Thus, figuring out the latent features for movies and users has become a constraint optimization problem.
 
-### Mathematical Details
-Please take a look at this Jupyter notebook to find out more about the mathematics behind this machine learning algorithm:
-[Low Rank Matrix Factorization](https://github.com/calvinfeng/low-rank-factorization/blob/master/low_rank_matrix_factorization.ipynb)
+### Why does it work?
+The idea of low rank factorization comes from singular value decomposition in linear algebra. It is difficult to show
+mathematics using GitHub markdown. The intuition of SVD technique is explained in this jupyter notebook:
+
+[Singular Value Decomposition](https://github.com/calvinfeng/low-rank-matrix-factorization/blob/master/low_rank_matrix_factorization.ipynb)
+
+How to apply low rank matrix factorization is explained in this notebook:
+
+[Low Rank Matrix Factorization](https://github.com/calvinfeng/low-rank-matrix-factorization/blob/master/low_rank_matrix_factorization.ipynb)
+
+Implementation of above algorithm is written in Go for production server. Although `numpy` is known to be very performant
+because it uses C binding, surprisingly `gonum` in Golang is actually 30% faster than numpy when it comes to basic matrix
+operations (I can't say for eigenvalue decomposition type of operations.) Also, iterative implemetation of matrix
+factorization is much much much performant when it is written in Go.
 
 ## Local Development Setup
 ### Dependency
