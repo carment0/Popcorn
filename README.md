@@ -40,7 +40,72 @@ How to apply low rank matrix factorization is explained in this notebook:
 Implementation of above algorithm is written in Go for production server. Although `numpy` is known to be very performant
 because it uses C binding, surprisingly `gonum` in Golang is actually 30% faster than numpy when it comes to basic matrix
 operations (I can't say for eigenvalue decomposition type of operations.) Also, iterative implemetation of matrix
-factorization is much much much performant when it is written in Go.
+factorization is much much much more performant when it is written in Go.
+
+### Benchmark
+```golang
+package main
+
+import (
+  "testing"
+  "gonum.org/v1/gonum/mat"
+  "math/rand"
+  "time"
+)
+
+func RandMat(row, col int) *mat.Dense {
+	rand.Seed(time.Now().UTC().Unix())
+
+	randFloats := []float64{}
+	for i := 0; i < row*col; i++ {
+		randFloats = append(randFloats, rand.Float64())
+	}
+
+	return mat.NewDense(row, col, randFloats)
+}
+
+func BenchmarkMatMul(b *testing.B) {
+  bigMat := RandMat(2000, 2000)
+  result := mat.NewDense(2000, 2000, nil)
+  result.Mul(bigMat, bigMat)
+}
+```
+```
+goos: linux
+goarch: amd64
+pkg: matrix-benchmark
+BenchmarkMatMul-4   	2000000000	         0.36 ns/op
+PASS
+ok  	matrix-benchmark	21.133s
+```
+
+```python
+import cProfile
+import numpy as np
+
+
+def mat_mul():
+    big_mat = np.random.rand(2000, 2000)
+    result = big_mat.dot(big_mat)
+
+
+if __name__ == '__main__':
+    cProfile.run('mat_mul()')
+```
+```
+5 function calls in 0.513 seconds
+
+Ordered by: standard name
+
+ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+1    0.000    0.000    0.513    0.513 <string>:1(<module>)
+1    0.000    0.000    0.513    0.513 matrix_test.py:5(mat_mul)
+1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+1    0.487    0.487    0.487    0.487 {method 'dot' of 'numpy.ndarray' objects}
+1    0.026    0.026    0.026    0.026 {method 'rand' of 'mtrand.RandomState' objects}
+```
+
+Notice how insanely fast is `gonum`.
 
 ## Local Development Setup
 ### Dependency
