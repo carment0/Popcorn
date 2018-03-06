@@ -40,6 +40,9 @@ class MovieIndex extends React.Component {
     dispatchPopularMoviesFetch: PropTypes.func.isRequired
   };
 
+  /**
+   * Grab more movies from either Redux store or ask the backend to populate Redux store.
+   */
   handleClickMoreMovies = () => {
     if (this.props.movies.popular.size > 0 && Object.keys(this.props.movies.all).length > 0) {
       this.shuffleMoviesAndSetDisplay(this.props.movies.all, this.props.movies.popular);
@@ -65,6 +68,10 @@ class MovieIndex extends React.Component {
     }
   };
 
+  /**
+   * Returns an instruction section
+   * @return {React.Element}
+   */
   get instruction() {
     if (Object.keys(this.state.displayMovies).length === 0) {
       return <div className="instruction" />;
@@ -98,8 +105,11 @@ class MovieIndex extends React.Component {
     );
   }
 
+  /**
+   * Returns a list of movie items that are in the popular list and not yet rated.
+   * @return {Array}
+   */
   get popularMovieItems() {
-    // Filter away the rated items.
     const unratedMovieIds = Object.keys(this.state.displayMovies).filter((movieId) => {
       return !this.props.movieRatings[movieId];
     });
@@ -120,6 +130,10 @@ class MovieIndex extends React.Component {
     });
   }
 
+  /**
+   * Returns a header section
+   * @return {React.Element}
+   */
   get header() {
     if (Object.keys(this.state.displayMovies).length > 0) {
       return (
@@ -159,14 +173,18 @@ class MovieIndex extends React.Component {
 
   render() {
     const progressPercentage = (100 * Object.keys(this.props.movieRatings).length) / 10;
-    if (this.props.movies.popular.size === 0 || Object.keys(this.props.movies.all) === 0) {
+    if (
+      this.props.movies.popular.size === 0
+      || Object.keys(this.props.movies.all).length === 0
+      || Object.keys(this.state.displayMovies).length === 0
+    ) {
       return (
         <article className="movie-index">
           <section className="header">
             <h1>Popular Movies</h1>
           </section>
           <section className="fetching-progress">
-            <h5>Please wait while movies are fetching</h5>
+            <h5>Please wait while movies are fetching; Heroku takes time to start up its server.</h5>
             <LinearProgress mode="indeterminate" />
           </section>
         </article>

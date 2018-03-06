@@ -26,6 +26,9 @@ class RatingRecord extends React.Component {
     dispatchMovieDetailFetch: PropTypes.func.isRequired
   };
 
+  /**
+   * @return {Array}
+   */
   get ratedMovies() {
     const ratedMovieIds = Object.keys(this.props.movieRatings);
     return ratedMovieIds.filter((movieId) => {

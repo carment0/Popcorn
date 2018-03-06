@@ -60,6 +60,9 @@ class MovieItem extends React.Component {
     this.props.dispatchMovieRatingPost(this.props.movieId, this.props.session.currentUser.id, ratingValue);
   };
 
+  /**
+   * @return {React.Element}
+   */
   get poster() {
     if (this.props.movieDetail.poster) {
       return (

@@ -28,15 +28,16 @@ func init() {
 }
 
 func main() {
-	dbCredentials := os.Getenv("DATABASE_URL")
-
-	if dbCredentials == "" {
+	var dbCredentials string
+	if os.Getenv("HEROKU_POSTGRESQL_BROWN_URL") != "" {
+		dbCredentials = os.Getenv("HEROKU_POSTGRESQL_BROWN_URL")
+	} else if os.Getenv("DATABASE_URL") != "" {
+		dbCredentials = os.Getenv("DATABASE_URL")
+	} else {
 		dbCredentials = fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s",
 			LocalDBUser, LocalDBPassword, LocalDBName, LocalSSLMode,
 		)
 	}
-
-	dbCredentials = "postgres://rilofmsyhjfsqi:20bd7d6384cf697b4171ff6d2e2ea4d0ddc0c9347165552d9a531c4e4e0b4011@ec2-23-23-177-166.compute-1.amazonaws.com:5432/d59h51r6len1ta"
 
 	db, err := gorm.Open("postgres", dbCredentials)
 	if err != nil {
@@ -94,7 +95,7 @@ func main() {
 	movieClusterRelationMap, loadError = loadMovieClusterRelationsCSVFile(DIR + "clusters.csv")
 	if loadError != nil {
 		logrus.Error("Failed to load movie clusters relations from CSV data:", loadError)
-	} else  {
+	} else {
 		logrus.Info("Movie clusters relations are loaded from csv files")
 	}
 

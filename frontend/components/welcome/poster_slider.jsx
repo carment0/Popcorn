@@ -23,10 +23,16 @@ class PosterSlider extends React.Component {
     movieDetails: PropTypes.object.isRequired
   };
 
+  /**
+   * @return {boolean}
+   */
   get hasGottenAllPosters() {
     return this.state.posters.length === Object.keys(this.props.movies).length && this.state.posters.length !== 0;
   }
 
+  /**
+   * @return {Array}
+   */
   get carouselItems() {
     const numberPerRow = 5;
     const carouselItems = [];

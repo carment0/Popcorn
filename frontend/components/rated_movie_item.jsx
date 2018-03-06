@@ -43,6 +43,9 @@ class RatedMovieItem extends React.Component {
     }
   };
 
+  /**
+   * @return {React.Element}
+   */
   get poster() {
     if (this.props.movieDetail.poster) {
       return (

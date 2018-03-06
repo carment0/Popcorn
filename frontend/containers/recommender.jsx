@@ -24,9 +24,6 @@ import './recommender.scss';
 
 
 class Recommender extends React.Component {
-  state = {
-    recommendedMovieChanged: 0,
-  }
   static propTypes = {
     session: PropTypes.object.isRequired,
     movies: PropTypes.object.isRequired,
@@ -39,61 +36,51 @@ class Recommender extends React.Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    const numberOfRecommendationRated = Object.keys(nextProps.movieRatings).length !== Object.keys(this.props.movieRatings).length;
-    const numberOfRecommendationSkipped = nextProps.movies.skipped.size !== this.props.movies.skipped.size;
+    let remainingRecommendedItems = nextProps.movies.recommended.size;
 
-    if (numberOfRecommendationRated || numberOfRecommendationSkipped) {
-      let num = this.state.recommendedMovieChanged;
-      num += 1;
-      this.setState({ recommendedMovieChanged: num });
+    this.props.movies.recommended.forEach((movieId) => {
+      if (nextProps.movies.skipped.has(movieId) || nextProps.movies.rated.has(movieId)) {
+        remainingRecommendedItems -= 1;
+      }
+    });
+
+    const filterParamHasChanged = (
+      this.props.movieYearRange.minYear !== nextProps.movieYearRange.minYear
+      || this.props.movieYearRange.maxYear !== nextProps.movieYearRange.maxYear
+      || this.props.moviePopularityPercentile !== nextProps.moviePopularityPercentile
+    );
+
+    let shouldFetchRecommendations = false;
+
+    // If authenticated user receives stored movie ratings from backend
+    if (Object.keys(this.props.movieRatings).length === 0 && Object.keys(nextProps.movieRatings).length >= 10) {
+      shouldFetchRecommendations = true;
     }
 
-    if (this.props.session.currentUser !== null) {
-      // When user just signed in and fetched the stored ratings from database, fetch recommendations.
-      if (Object.keys(this.props.movieRatings).length === 0 && Object.keys(nextProps.movieRatings).length >= 10) {
-        this.props.dispatchPersonalizedRecommendedMoviesFetch(
-          this.props.session,
-          this.props.movieYearRange,
-          this.props.moviePopularityPercentile,
-          this.props.movies.skipped
-        );
-      }
+    // Self-explanatory
+    if (filterParamHasChanged) {
+      shouldFetchRecommendations = true;
+    }
 
-      // When user modifies the query parameters, fetch recommendations.
-      if (
-        this.props.movieYearRange.minYear !== nextProps.movieYearRange.minYear
-        || this.props.movieYearRange.maxYear !== nextProps.movieYearRange.maxYear
-        || this.props.moviePopularityPercentile !== nextProps.moviePopularityPercentile
-      ) {
-        this.props.dispatchPersonalizedRecommendedMoviesFetch(
-          this.props.session,
-          nextProps.movieYearRange,
-          nextProps.moviePopularityPercentile,
-          nextProps.movies.skipped
-        );
-      }
-    } else {
-      if (Object.keys(nextProps.movieRatings).length >= 10 && this.state.recommendedMovieChanged === 9) {
-        this.props.dispatchRecommendedMoviesFetch(
-          nextProps.movieYearRange,
-          nextProps.moviePopularityPercentile,
-          nextProps.movies.skipped,
-          nextProps.movieRatings
-        );
-      }
+    // If the frontend does not show any more recommendations to user
+    if (remainingRecommendedItems === 0 && Object.keys(nextProps.movieRatings).length >= 10) {
+      shouldFetchRecommendations = true;
+    }
 
-      if (
-        this.props.movieYearRange.minYear !== nextProps.movieYearRange.minYear
-        || this.props.movieYearRange.maxYear !== nextProps.movieYearRange.maxYear
-        || this.props.moviePopularityPercentile !== nextProps.moviePopularityPercentile
-      ) {
-        this.props.dispatchRecommendedMoviesFetch(
-          nextProps.movieYearRange,
-          nextProps.moviePopularityPercentile,
-          nextProps.movies.skipped,
-          nextProps.movieRatings
-        );
-      }
+    if (shouldFetchRecommendations && this.props.session.currentUser === null) {
+      this.props.dispatchRecommendedMoviesFetch(
+        nextProps.movieYearRange,
+        nextProps.moviePopularityPercentile,
+        nextProps.movies.skipped,
+        nextProps.movieRatings
+      );
+    } else if (shouldFetchRecommendations) {
+      this.props.dispatchPersonalizedRecommendedMoviesFetch(
+        this.props.session,
+        nextProps.movieYearRange,
+        nextProps.moviePopularityPercentile,
+        nextProps.movies.skipped
+      );
     }
   }
 

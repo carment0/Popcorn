@@ -89,6 +89,9 @@ class Navigation extends React.Component {
     this.setState({ dialogOpen: true, formType: formType });
   };
 
+  /**
+   * @return {string}
+   */
   get dialogTitle() {
     if (this.state.formType === FormType.SIGN_UP) {
       return 'Signup with Popcorn!';
@@ -96,6 +99,9 @@ class Navigation extends React.Component {
     return 'Login to view your saved recommendations';
   }
 
+  /**
+   * @return {React.Element}
+   */
   get form() {
     if (this.state.formType === FormType.SIGN_UP) {
       return (
@@ -119,6 +125,9 @@ class Navigation extends React.Component {
     );
   }
 
+  /**
+   * @return {React.Element}
+   */
   get logoutNav() {
     if (this.props.session.currentUser) {
       return (

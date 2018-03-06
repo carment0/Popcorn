@@ -24,14 +24,15 @@ export default function movieTrailerReducer(state = {}, action) {
 
       // Currently we only support movie trailers on YouTube, will consider supporting Vimeo in the future.
       const youtubeVidoeKeyList = [];
-      results.forEach((trailerSearchResult) => {
-        if (trailerSearchResult.site === YouTube) {
-          youtubeVidoeKeyList.push(trailerSearchResult.key);
-        }
-      });
+      if (results !== undefined && results.length > 0) {
+        results.forEach((trailerSearchResult) => {
+          if (trailerSearchResult.site === YouTube) {
+            youtubeVidoeKeyList.push(trailerSearchResult.key);
+          }
+        });
+      }
 
       const newState = {};
-
       if (youtubeVidoeKeyList.length > 0) {
         newState[action.imdbId] = youtubeVidoeKeyList;
       }

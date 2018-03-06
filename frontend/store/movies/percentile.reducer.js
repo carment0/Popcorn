@@ -11,7 +11,7 @@ import { SET_MOVIE_POPULARITY_PERCENTILE } from './percentile.action';
  * @param {number} state
  * @param {object} action
  */
-export default function moviePopularityPercentileReducer(state = 0, action) {
+export default function moviePopularityPercentileReducer(state = 100, action) {
   switch (action.type) {
     case SET_MOVIE_POPULARITY_PERCENTILE:
       return action.percentile;
