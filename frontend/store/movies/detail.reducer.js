@@ -4,7 +4,7 @@
  */
 
 import merge from 'lodash/merge';
-import { MOVIE_DETAIL_FETCH_SUCCESS, MOVIE_DETAIL_FETCH_FAIL } from './detail.action';
+import { MOVIE_DETAIL_FETCH_SUCCESS } from './detail.action';
 
 /**
  * Movie detail state is a map of movie ID to a dictionary of details of the movie such as movie poster, movie overview,
@@ -51,10 +51,6 @@ export default function movieDetailReducer(state = {}, action) {
       }
 
       return merge({}, state, newState);
-
-    case MOVIE_DETAIL_FETCH_FAIL:
-      console.log(`Failed to fetch metadata for movie ${action.imdbId}`, action.error);
-      return state;
 
     default:
       return state;

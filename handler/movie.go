@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"popcorn/model"
@@ -49,6 +50,11 @@ func NewPopularMovieListHandler(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
+type TMDBResponseData struct {
+	Status        int    `json:"status_code"`
+	StatusMessage string `json:"status_message"`
+}
+
 func NewMovieDetailHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -87,6 +93,14 @@ func NewMovieDetailHandler(db *gorm.DB) http.HandlerFunc {
 			}
 
 			bodyBytes, _ := ioutil.ReadAll(res.Body)
+			var resData TMDBResponseData
+			if err := json.Unmarshal(bodyBytes, &resData); err == nil {
+				if resData.Status == 25 {
+					logrus.WithField("src", "handler.movie").Error("reaching request limits")
+					RenderError(w, "request count is over the limit", http.StatusTooManyRequests)
+					return
+				}
+			}
 
 			detail = model.MovieDetail{
 				IMDBID: vars["IMDBID"],

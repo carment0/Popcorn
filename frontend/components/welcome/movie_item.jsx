@@ -51,13 +51,17 @@ class MovieItem extends React.Component {
    * user sign ups and logs in.
    * @param {number} ratingValue
    */
-  handleRatingSelect = (ratingValue) => {
-    if (this.props.session.currentUser === null) {
-      this.props.dispatchMovieRatingRecord(this.props.movieId, ratingValue);
-      return;
+  handleRatingSelect = (value) => {
+    let ratingValue = value;
+    if (ratingValue <= 0) {
+      ratingValue = 0.5;
     }
 
-    this.props.dispatchMovieRatingPost(this.props.movieId, this.props.session.currentUser.id, ratingValue);
+    if (this.props.session.currentUser === null) {
+      this.props.dispatchMovieRatingRecord(this.props.movieId, ratingValue);
+    } else {
+      this.props.dispatchMovieRatingPost(this.props.movieId, this.props.session.currentUser.id, ratingValue);
+    }
   };
 
   /**

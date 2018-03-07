@@ -33,6 +33,7 @@ class RecommendationIndex extends React.Component {
   };
 
   static propTypes = {
+    errors: PropTypes.object.isRequired,
     session: PropTypes.object.isRequired,
     movies: PropTypes.object.isRequired,
     movieTrailers: PropTypes.object.isRequired,
@@ -97,14 +98,18 @@ class RecommendationIndex extends React.Component {
 
   get recommendedMovies() {
     const validRecommendations = [];
-
     this.props.movies.recommended.forEach((movieId) => {
       if (this.props.movies.skipped.has(movieId) || this.props.movies.rated.has(movieId)) {
         return;
       }
 
       if (this.props.movies.all[movieId]) {
-        validRecommendations.push(this.props.movies.all[movieId]);
+        const movie = this.props.movies.all[movieId];
+
+        // Make sure that we only show movie that has movie detail
+        if (this.props.errors.movieDetails[movie.imdb_id] === undefined) {
+          validRecommendations.push(movie);
+        }
       }
     });
 
@@ -160,6 +165,7 @@ class RecommendationIndex extends React.Component {
 }
 
 const mapReduxStateToProps = (state) => ({
+  errors: state.errors,
   movies: state.movies,
   session: state.session,
   movieDetails: state.movieDetails,

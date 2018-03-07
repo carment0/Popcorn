@@ -4,7 +4,7 @@
  */
 
 import merge from 'lodash/merge';
-import { MOVIE_TRAILER_FETCH_SUCCESS, MOVIE_TRAILER_FETCH_FAIL } from './trailer.action';
+import { MOVIE_TRAILER_FETCH_SUCCESS } from './trailer.action';
 
 
 const YouTube = 'YouTube';
@@ -38,10 +38,6 @@ export default function movieTrailerReducer(state = {}, action) {
       }
 
       return merge({}, state, newState);
-
-    case MOVIE_TRAILER_FETCH_FAIL:
-      console.log(`Failed to fetch movie trailer for movie ${action.imdbId}`, action.error);
-      return state;
 
     default:
       return state;

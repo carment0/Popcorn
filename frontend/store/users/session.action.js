@@ -54,5 +54,7 @@ export const tokenAuthenticate = () => (dispatch) => {
       type: AUTH_SUCCESS,
       currentUser: res.data
     });
+  }).catch(() => {
+    console.log('There is no current user');
   });
 };
