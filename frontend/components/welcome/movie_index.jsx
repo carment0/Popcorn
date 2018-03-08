@@ -30,10 +30,10 @@ class MovieIndex extends React.Component {
   };
 
   static propTypes = {
+    errors: PropTypes.object.isRequired,
     session: PropTypes.object.isRequired,
     movies: PropTypes.object.isRequired,
     movieDetails: PropTypes.object.isRequired,
-    movieRatings: PropTypes.object.isRequired,
     dispatchMovieDetailFetch: PropTypes.func.isRequired,
     dispatchMovieRatingPost: PropTypes.func.isRequired,
     dispatchMovieRatingRecord: PropTypes.func.isRequired,
@@ -80,7 +80,7 @@ class MovieIndex extends React.Component {
     const instruction = `These are some of the most popular American films. We think it is very likely that you have
     seen at least some of them.  If you have seen them, whether you like or dislike them, let us know and give them
     ratings! It will help our backend machine learning algorithm to learn your taste and preference`;
-    const ratingCount = Object.keys(this.props.movieRatings).length;
+    const ratingCount = this.props.movies.rated.size;
     if (ratingCount === 0) {
       return (
         <div className="instruction">
@@ -110,8 +110,12 @@ class MovieIndex extends React.Component {
    * @return {Array}
    */
   get popularMovieItems() {
+    // NOTE: movieId is ALWAYS integer except when you do Object.keys()
     const unratedMovieIds = Object.keys(this.state.displayMovies).filter((movieId) => {
-      return !this.props.movieRatings[movieId];
+      const movie = this.state.displayMovies[movieId];
+      const isRated = this.props.movies.rated.has(movie.id);
+      const isDetailFetchSuccess = this.props.errors.movieDetails[movie.imdb_id] === undefined;
+      return !isRated && isDetailFetchSuccess;
     });
 
     return unratedMovieIds.sort().map((movieId) => {
@@ -172,7 +176,7 @@ class MovieIndex extends React.Component {
   }
 
   render() {
-    const progressPercentage = (100 * Object.keys(this.props.movieRatings).length) / 10;
+    const progressPercentage = (100 * this.props.movies.rated.size) / 10;
     if (
       this.props.movies.popular.size === 0
       || Object.keys(this.props.movies.all).length === 0
@@ -214,9 +218,9 @@ class MovieIndex extends React.Component {
 
 const mapReduxStateToProps = (state) => {
   return {
+    errors: state.errors,
     movies: state.movies,
     movieDetails: state.movieDetails,
-    movieRatings: state.movieRatings,
     session: state.session
   };
 };
